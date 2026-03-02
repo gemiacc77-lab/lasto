@@ -112,6 +112,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   if (els.authBtn) els.authBtn.addEventListener("click", attemptLogin);
+  if (document.getElementById("togglePassword")) {
+    document
+      .getElementById("togglePassword")
+      .addEventListener("click", function () {
+        const isPass = els.ppass.getAttribute("type") === "password";
+        els.ppass.setAttribute("type", isPass ? "text" : "password");
+        this.classList.remove(isPass ? "fa-eye-slash" : "fa-eye");
+        this.classList.add(isPass ? "fa-eye" : "fa-eye-slash");
+        this.style.color = isPass ? "var(--accent-light)" : "var(--text-gray)";
+      });
+  }
   if (els.logoutBtn)
     els.logoutBtn.addEventListener("click", () => window.location.reload());
   [els.pid, els.ppass].forEach((input) => {
@@ -156,16 +167,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (feedbackEl) {
           feedbackEl.textContent = msg;
           feedbackEl.style.display = "block";
-          feedbackEl.className = "form-feedback error-msg"; 
+          feedbackEl.className = "form-feedback error-msg";
           if (typeof gsap !== "undefined") {
-            gsap.fromTo(feedbackEl, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
+            gsap.fromTo(
+              feedbackEl,
+              { y: -10, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.3 },
+            );
           }
         } else {
           alert(msg);
         }
       }
       if (!phoneInput.value.startsWith("+")) {
-        showLocalError("Phone number must start with country code (e.g. +966...).");
+        showLocalError(
+          "Phone number must start with country code (e.g. +966...).",
+        );
         return;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
@@ -173,9 +190,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const formData = new FormData(els.enrollForm);
-      const turnstileToken = formData.get('cf-turnstile-response');
+      const turnstileToken = formData.get("cf-turnstile-response");
       if (!turnstileToken) {
-        showLocalError("Please complete the security check (Captcha) above the button.");
+        showLocalError(
+          "Please complete the security check (Captcha) above the button.",
+        );
         return;
       }
       if (feedbackEl) feedbackEl.style.display = "none";
@@ -185,8 +204,8 @@ document.addEventListener("DOMContentLoaded", () => {
       for (const pair of formData) {
         data.append(pair[0], pair[1]);
       }
-      if (!data.has('cf-turnstile-response')) {
-         data.append('cf-turnstile-response', turnstileToken);
+      if (!data.has("cf-turnstile-response")) {
+        data.append("cf-turnstile-response", turnstileToken);
       }
       try {
         const response = await fetch(ENROLL_WEBHOOK, {
@@ -195,9 +214,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const result = await response.json();
         if (result.status === "success" || result.result === "success") {
-          if (typeof turnstile !== 'undefined') turnstile.reset();
+          if (typeof turnstile !== "undefined") turnstile.reset();
           localStorage.clear();
-          handleSuccess(result.name || "Partner"); 
+          handleSuccess(result.name || "Partner");
         } else {
           throw new Error(result.message || "Submission failed");
         }
@@ -206,11 +225,11 @@ document.addEventListener("DOMContentLoaded", () => {
         showLocalError(
           err.message === "Failed to fetch"
             ? "Connection error. Please check your internet."
-            : err.message
+            : err.message,
         );
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
-        if (typeof turnstile !== 'undefined') turnstile.reset();
+        if (typeof turnstile !== "undefined") turnstile.reset();
       }
     });
     function showError(msg) {
@@ -257,7 +276,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function setupExportButtons() {
     if (els.exportCSV) els.exportCSV.addEventListener("click", exportToCSV);
-    if (els.exportExcel) els.exportExcel.addEventListener("click", exportToExcel);
+    if (els.exportExcel)
+      els.exportExcel.addEventListener("click", exportToExcel);
     if (els.exportPDF) els.exportPDF.addEventListener("click", exportToPDF);
     if (els.txFilter) {
       els.txFilter.addEventListener("change", (e) => {
@@ -351,80 +371,65 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoData = getLogoData();
     const dateStr = new Date().toLocaleDateString();
 
-    doc.setFillColor(18, 8, 47); 
-    doc.rect(0, 0, 210, 40, 'F');
-    
+    doc.setFillColor(18, 8, 47);
+    doc.rect(0, 0, 210, 40, "F");
+
     if (logoData) {
-      doc.addImage(logoData, 'PNG', 14, 8, 45, 8 * (45/45)); 
+      doc.addImage(logoData, "PNG", 14, 8, 45, 8 * (45 / 45));
     } else {
-       doc.setFontSize(22);
-       doc.setTextColor(255, 255, 255);
-       doc.text("OPTILINE", 14, 25);
+      doc.setFontSize(22);
+      doc.setTextColor(255, 255, 255);
+      doc.text("OPTILINE", 14, 25);
     }
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(164, 94, 255); 
+    doc.setTextColor(164, 94, 255);
     doc.text("OFFICIAL COMMISSION STATEMENT", 140, 18);
-    
+
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(200, 200, 200);
     doc.text(`Generated: ${dateStr}`, 140, 24);
     doc.text(`Partner: ${partnerName}`, 140, 29);
 
-    let y = 55;
-
+    let y = 65;
     doc.setFontSize(14);
-    doc.setTextColor(53, 18, 80); 
+    doc.setTextColor(0, 0, 0);
     doc.text("Transaction History", 14, 48);
-    
-    doc.setDrawColor(164, 94, 255);
+    doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.5);
-    doc.line(14, 50, 196, 50);
-
-    doc.setFillColor(245, 245, 250);
-    doc.rect(14, y - 6, 182, 10, 'F');
-    
+    doc.line(14, 52, 196, 52);
+    doc.setFillColor(230, 230, 235);
+    doc.rect(14, y - 6, 182, 10, "F");
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(80, 80, 90);
+    doc.setTextColor(0, 0, 0);
     doc.text("DATE", 18, y);
     doc.text("PACKAGE", 50, y);
     doc.text("REF ID", 90, y);
     doc.text("AMOUNT", 140, y);
     doc.text("STATUS", 170, y);
-    
     y += 12;
     doc.setFont("helvetica", "normal");
     doc.setTextColor(0, 0, 0);
-
     currentTransactions.forEach((tx, index) => {
       if (index % 2 === 0) {
-         doc.setFillColor(252, 252, 255);
-         doc.rect(14, y - 6, 182, 8, 'F');
+        doc.setFillColor(240, 240, 245);
+        doc.rect(14, y - 6, 182, 8, "F");
       }
-
       doc.setFontSize(9);
       doc.text(tx.date || "-", 18, y);
-      
       doc.setFont("helvetica", "bold");
       doc.text(tx.package || "-", 50, y);
       doc.setFont("helvetica", "normal");
-      
       doc.text(tx.ref || "-", 90, y);
-      
-      doc.setTextColor(16, 185, 129); 
+      doc.setTextColor(0, 0, 0);
       doc.text(`$${tx.commission}`, 140, y);
-      
       doc.setTextColor(0, 0, 0);
       let status = tx.status || "Completed";
-      if(status === "Paid") doc.setTextColor(16, 185, 129);
-      if(status === "Pending") doc.setTextColor(245, 158, 11);
       doc.text(status, 170, y);
-      
       y += 8;
-      
       if (y > 270) {
         doc.addPage();
         y = 20;
@@ -432,15 +437,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const pageCount = doc.internal.getNumberOfPages();
-    for(let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(150, 150, 150);
-        doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
-        doc.text("OPTILINE - Partner Success Program", 105, 285, { align: 'center' });
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.5);
+      doc.line(14, 280, 196, 280);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: "center" });
+      doc.text("OPTILINE - Partner Success Program", 105, 285, {
+        align: "center",
+      });
     }
 
-    doc.save(`OPTILINE_Report_${partnerName.replace(/\s+/g, '_')}_${new Date().toISOString().split("T")[0]}.pdf`);
+    doc.save(
+      `OPTILINE_Report_${partnerName.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`,
+    );
   }
   function attemptLogin() {
     const id = els.pid.value.trim();
@@ -491,29 +503,23 @@ document.addEventListener("DOMContentLoaded", () => {
     els.authBtn.disabled = false;
     els.authBtn.querySelector(".btn-txt").textContent = "Access Dashboard";
   }
-  function animateVal(element, finalValue, prefix = "", duration = 1.5) {
+  function animateVal(element, finalValue, prefix = "", duration = 2.5) {
     if (typeof gsap === "undefined") {
       element.textContent = prefix + finalValue.toLocaleString();
       return;
     }
-    const startValue =
-      parseFloat(element.textContent.replace(prefix, "").replace(/,/g, "")) ||
-      0;
-    gsap.to(
-      { value: startValue },
-      {
-        value: finalValue,
-        duration: duration,
-        ease: "power2.out",
-        onUpdate: function () {
-          element.textContent =
-            prefix + Math.floor(this.vars.value).toLocaleString();
-        },
-        onComplete: function () {
-          element.textContent = prefix + finalValue.toLocaleString();
-        },
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: finalValue,
+      duration: duration,
+      ease: "power2.inOut",
+      onUpdate: function () {
+        element.textContent = prefix + Math.floor(obj.val).toLocaleString();
       },
-    );
+      onComplete: function () {
+        element.textContent = prefix + finalValue.toLocaleString();
+      },
+    });
   }
   function loadDashboard(data) {
     els.pName.textContent = data.partnerId || "Partner";
@@ -1182,39 +1188,58 @@ const messageInput = document.getElementById("partnerMessage");
 const strengthBar = document.getElementById("msgStrengthBar");
 const strengthText = document.getElementById("msgStrengthText");
 if (messageInput && strengthBar) {
-    messageInput.addEventListener("input", () => {
-        const val = messageInput.value.length;
-        let width = "0%", color = "#ff4d4d", txt = "Too short";
-        if (val > 20) { width = "40%"; color = "#F59E0B"; txt = "Weak"; }
-        if (val > 50) { width = "70%"; color = "#6366F1"; txt = "Good"; }
-        if (val > 100) { width = "100%"; color = "#10B981"; txt = "Strong!"; }
-        strengthBar.style.width = width;
-        strengthBar.style.background = color;
-        strengthText.textContent = "Message strength: " + txt;
-    });
+  messageInput.addEventListener("input", () => {
+    const val = messageInput.value.length;
+    let width = "0%",
+      color = "#ff4d4d",
+      txt = "Too short";
+    if (val > 20) {
+      width = "40%";
+      color = "#F59E0B";
+      txt = "Weak";
+    }
+    if (val > 50) {
+      width = "70%";
+      color = "#6366F1";
+      txt = "Good";
+    }
+    if (val > 100) {
+      width = "100%";
+      color = "#10B981";
+      txt = "Strong!";
+    }
+    strengthBar.style.width = width;
+    strengthBar.style.background = color;
+    strengthText.textContent = "Message strength: " + txt;
+  });
 }
-const inputsToSave = ["partnerName", "partnerPhone", "partnerEmail", "partnerMessage"];
-inputsToSave.forEach(id => {
-    const savedVal = localStorage.getItem(id);
-    if (savedVal && document.getElementById(id)) {
-        document.getElementById(id).value = savedVal;
-    }
+const inputsToSave = [
+  "partnerName",
+  "partnerPhone",
+  "partnerEmail",
+  "partnerMessage",
+];
+inputsToSave.forEach((id) => {
+  const savedVal = localStorage.getItem(id);
+  if (savedVal && document.getElementById(id)) {
+    document.getElementById(id).value = savedVal;
+  }
 });
-inputsToSave.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-        el.addEventListener("input", () => {
-            localStorage.setItem(id, el.value);
-        });
-    }
+inputsToSave.forEach((id) => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", () => {
+      localStorage.setItem(id, el.value);
+    });
+  }
 });
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   const toggleBtn = document.getElementById("policyToggle");
   const closeBtn = document.getElementById("closePolicyBtn");
   const section = document.getElementById("policySection");
-  
+
   if (toggleBtn && section) {
-    toggleBtn.onclick = function(e) {
+    toggleBtn.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
       if (section.classList.contains("active")) {
@@ -1224,19 +1249,20 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     };
   }
-  
+
   if (closeBtn && section) {
-    closeBtn.onclick = function(e) {
+    closeBtn.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
       section.classList.remove("active");
-      setTimeout(function() {
+      setTimeout(function () {
         const headerOffset = 100;
         const elementPosition = section.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - headerOffset;
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth"
+          behavior: "smooth",
         });
       }, 600);
     };
