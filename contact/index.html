@@ -52,7 +52,6 @@
   }
 }
 </script>
-    <!-- Professional SEO & Favicon Optimization -->
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/imgs/favicon-16x16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/imgs/favicon-32x32.png" />
@@ -97,45 +96,65 @@
             <div class="container">
                 <div class="contact-wrapper anim-group">
                     <form class="contact-form" name="contact" method="POST" id="contact-form">
-                        <h2>Send a Message</h2>
-                        <div class="form-group">
-                            <label for="name">Full Name *</label>
-                            <input type="text" id="name" name="name" required placeholder="Your full name">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email Address *</label>
-                            <input type="email" id="email" name="email" required placeholder="email@example.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="telegram">Telegram *</label>
-                            <input type="text" id="telegram" name="telegram" placeholder="@username or +1234567890" required pattern="^(@[a-zA-Z0-9_]+|\+[0-9]+)$" title="Please start with @ for username or + for phone number">
-                            <div class="field-hint" style="margin-top: 8px; font-size: 0.85rem; color: var(--text-gray);">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="message">Message *</label>
-                            <textarea id="message" name="message" required placeholder="Brief us on your mission parameters or specific requirements."></textarea>
-                        </div>
-                        <div style="display:none;" aria-hidden="true">
-                            <label>Don't fill this out if you're human:</label>
-                            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
-                        </div>
-                        <div class="cf-turnstile" data-sitekey="0x4AAAAAACCMwmqRs6BGL4B2" data-theme="dark"></div>
-                        <div class="form-submit-container">
-                            <button type="submit" class="unified-button" id="submit-button">TRANSMIT REQUEST</button>
-                            <div id="countdown-timer" class="countdown-timer" style="font-weight: normal; font-size: 0.9rem;">
-                                <i class="fas fa-coffee" style="margin-right: 5px;"></i> Please allow us a moment before sending another inquiry: <span id="countdown-display" style="font-weight: bold; color: var(--text-light);">120</span>s
-                            </div>
-                            <div class="form-messages">
-                                <div id="form-success" style="display: none; color: #39D98A; text-align: center; margin-top: 15px; padding: 15px; background: transparent; border: 1px solid #39D98A; border-radius: 5px; font-weight: bold;">
-                                    Transmission Received. Our team will get back to you shortly.
-                                </div>
-                                <div id="form-error" style="display: none; color: #ff6b6b; text-align: center; margin-top: 15px; padding: 15px; background: transparent; border: 1px solid #ff6b6b; border-radius: 5px;">
-                                    Oops! Something went wrong. Please try again.
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+    <h2>Send a Message</h2>
+    
+    <div class="form-group">
+        <label for="name">Full Name *</label>
+        <input type="text" id="name" name="name" required placeholder="Your full name">
+    </div>
+    
+    <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input type="email" id="email" name="email" required placeholder="email@example.com">
+    </div>
+    
+    <div class="form-group">
+        <label for="telegram">Telegram *</label>
+        <input type="text" id="telegram" name="telegram" placeholder="@username or +1234567890" required pattern="^(@[a-zA-Z0-9_]+|\+[0-9]+)$">
+    </div>
+    
+    <div class="form-group">
+        <label for="message">Message *</label>
+        <textarea id="message" name="message" required placeholder="Brief us on your mission parameters..."></textarea>
+        
+        <div id="msgStrengthContainer">
+            <div class="msg-strength-bg">
+                <div id="msgStrengthBar"></div>
+            </div>
+            <small id="msgStrengthText">Message strength: Too short</small>
+        </div>
+    </div>
+    
+    <div class="hidden-field" aria-hidden="true">
+        <input type="text" name="website" tabindex="-1">
+        <input type="hidden" name="timeToSubmit" id="timeToSubmit">
+    </div>
+    
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAACCMwmqRs6BGL4B2" data-theme="dark"></div>
+    
+    <div class="form-submit-container">
+        <button type="submit" class="unified-button" id="submit-button">TRANSMIT REQUEST</button>
+        
+        <div id="countdown-timer">
+            <i class="fas fa-clock"></i> Please wait <span id="countdown-display">300</span>s before sending again.
+        </div>
+    </div>
+</form>
+
+<div id="contact-success" class="anim-group">
+    <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    
+    <h3 class="subtle-glow">Transmission Received</h3>
+    
+    <p>
+        Thank you, <span id="user-display-name">Partner</span>.<br>
+        Your message has been securely transmitted. Our team will contact you shortly.
+    </p>
+    
+    <button type="button" onclick="window.location.href='/'" class="unified-button return-home-btn">Return Home</button>
+</div>
                     <div class="contact-info">
                         <h3>We're Here To Help</h3>
                         <p style="color: var(--text-gray); margin-bottom: 2rem;">For active clients or new talent, use the form to reach the right department directly.</p>
