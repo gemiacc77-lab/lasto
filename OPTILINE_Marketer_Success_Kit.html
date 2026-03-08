@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPTILINE Marketer Success Kit</title>
+    <title>OPTILINE Marketer Success Kit - PDF Version</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ===== الأنماط الأصلية (بدون تغيير) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -19,37 +20,20 @@
             color: #1a1a2e;
             margin: 0;
             padding: 0;
+            background: white;
         }
         
-        @page {
-            size: A4;
-            margin: 2cm 2cm 2.5cm 2cm;
-            @top-center { content: string(doctitle); font-size: 9pt; color: #666; }
-            @bottom-center { content: counter(page); font-size: 9pt; color: #666; }
-        }
-        
-        @page :first {
-            margin: 0;
-            @top-center { content: none; }
-            @bottom-center { content: none; }
-        }
-        
-        @page cover { @top-center { content: none; } @bottom-center { content: none; } }
-        @page toc { @top-center { content: none; } @bottom-center { content: none; } }
-        
-        body { string-set: doctitle ""; }
-        h1 { string-set: doctitle content(); }
-        
-        /* Cover Page */
+        /* ===== أنماط Cover - كما هي ===== */
         .cover {
-            width: 210mm;
-            height: 297mm;
-            margin: 0;
+            width: 100%;
+            min-height: 100vh;
             position: relative;
             overflow: hidden;
-            page: cover;
-            page-break-after: always;
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
+            page-break-after: always;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .cover::before {
@@ -95,13 +79,12 @@
         }
         
         .cover-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative;
+            z-index: 10;
             text-align: center;
             width: 85%;
-            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
         }
         
         .cover-logo {
@@ -167,10 +150,287 @@
             color: rgba(255,255,255,0.4);
         }
         
-        /* Table of Contents */
+        /* ===== أنماط المحتوى الأساسية - كما هي ===== */
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18pt;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-top: 0.8cm;
+            margin-bottom: 0.4cm;
+            padding-bottom: 0.2cm;
+            border-bottom: 2px solid #8a2be2;
+        }
+        
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14pt;
+            font-weight: 600;
+            color: #16213e;
+            margin-top: 0.6cm;
+            margin-bottom: 0.3cm;
+        }
+        
+        h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 12pt;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-top: 0.4cm;
+            margin-bottom: 0.2cm;
+        }
+        
+        h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 11pt;
+            font-weight: 600;
+            color: #16213e;
+            margin-top: 0.3cm;
+            margin-bottom: 0.15cm;
+        }
+        
+        p {
+            margin-bottom: 0.3cm;
+            text-align: justify;
+            text-align-last: left;
+        }
+        
+        ul, ol {
+            margin-left: 0.8cm;
+            margin-bottom: 0.4cm;
+        }
+        
+        li {
+            margin-bottom: 0.15cm;
+        }
+        
+        table {
+            width: 100%;
+            max-width: 100%;
+            border-collapse: collapse;
+            margin: 0.5cm 0;
+            font-size: 10pt;
+        }
+        
+        th {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1a1a3e, #16213e);
+            color: white;
+            padding: 0.3cm;
+            text-align: left;
+            font-size: 9pt;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 0.25cm 0.3cm;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .persona-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-left: 4px solid #8a2be2;
+            padding: 0.5cm;
+            margin: 0.5cm 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .persona-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            color: #16213e;
+            margin-bottom: 0.3cm;
+            font-size: 12pt;
+        }
+        
+        .persona-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #8a2be2, #9D4EDD);
+            color: white;
+            padding: 0.1cm 0.4cm;
+            border-radius: 12px;
+            font-size: 8pt;
+            font-weight: 600;
+            margin-right: 0.2cm;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+            border-left: 4px solid #9D4EDD;
+            padding: 0.4cm;
+            margin: 0.5cm 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .highlight-box-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            color: #16213e;
+            margin-bottom: 0.2cm;
+            font-size: 10pt;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #f0fff4, #e6ffed);
+            border-left: 4px solid #38a169;
+            padding: 0.4cm;
+            margin: 0.5cm 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+            border-left: 4px solid #e53e3e;
+            padding: 0.4cm;
+            margin: 0.5cm 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .quote-box {
+            background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+            border-left: 4px solid #8a2be2;
+            padding: 0.4cm;
+            margin: 0.5cm 0;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: #4a5568;
+        }
+        
+        .response-box {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border: 1px solid #e2e8f0;
+            padding: 0.4cm;
+            margin: 0.4cm 0;
+            border-radius: 8px;
+        }
+        
+        .response-label {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            color: #8a2be2;
+            font-size: 9pt;
+            margin-bottom: 0.2cm;
+        }
+        
+        .package-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #9D4EDD;
+            padding: 0.5cm;
+            margin: 0.5cm 0;
+            border-radius: 8px;
+        }
+        
+        .package-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: #16213e;
+            margin-bottom: 0.2cm;
+            font-size: 13pt;
+        }
+        
+        .package-price {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: #9D4EDD;
+            font-size: 16pt;
+        }
+        
+        .package-commission {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            color: #8a2be2;
+            font-size: 11pt;
+        }
+        
+        .commission-highlight {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: #9D4EDD;
+            font-size: 12pt;
+        }
+        
+        .check {
+            color: #38a169;
+            font-weight: bold;
+        }
+        
+        .cross {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+        
+        .week-box {
+            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+            padding: 0.3cm;
+            margin: 0.3cm 0;
+            border-radius: 6px;
+        }
+        
+        .week-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            color: #16213e;
+            font-size: 10pt;
+        }
+        
+        .info-box {
+            background: #f0f4f8;
+            border-left: 4px solid #4299e1;
+            padding: 0.4cm;
+            margin: 0.5cm 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .support-contact {
+            background: linear-gradient(135deg, #1a1a3e, #16213e);
+            color: white;
+            padding: 0.4cm;
+            border-radius: 8px;
+            margin: 0.3cm 0;
+        }
+        
+        .support-contact a {
+            color: #9D4EDD;
+        }
+        
+        a {
+            color: #8a2be2;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        figure {
+            margin: 0.5cm 0;
+            text-align: center;
+        }
+        
+        figure img {
+            max-width: 100%;
+            max-height: 30vh;
+            height: auto;
+        }
+        
+        figcaption {
+            font-size: 9pt;
+            color: #666;
+            margin-top: 0.2cm;
+            font-style: italic;
+        }
+        
+        figcaption::before {
+            content: attr(data-label) ": ";
+            font-weight: 600;
+            font-style: normal;
+        }
+        
         .toc-page {
-            page: toc;
-            page-break-after: always;
+            padding: 1cm 0;
         }
         
         .toc-title {
@@ -215,324 +475,188 @@
             color: #444;
         }
         
-        /* Content Styles */
         .content {
             padding-top: 0.5cm;
         }
         
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 18pt;
-            font-weight: 600;
-            color: #1a1a2e;
-            margin-top: 0.8cm;
-            margin-bottom: 0.4cm;
-            padding-bottom: 0.2cm;
-            border-bottom: 2px solid #8a2be2;
-            page-break-after: avoid;
+        /* ===== أنماط الطباعة المحسنة (المضافة) ===== */
+        @media print {
+            /* تعريف الصفحة للطباعة */
+            @page {
+                size: A4;
+                margin: 2cm 2cm 2.5cm 2cm;
+                orphans: 4;
+                widows: 4;
+            }
+            
+            @page :first {
+                margin: 0;
+            }
+            
+            /* منع الفصل السيئ */
+            h1, h2, h3, h4 {
+                page-break-after: avoid;
+                page-break-inside: avoid;
+            }
+            
+            h1 {
+                margin-top: 1cm;
+            }
+            
+            h1:first-of-type {
+                margin-top: 0;
+            }
+            
+            p, li, blockquote, figcaption {
+                orphans: 3;
+                widows: 3;
+            }
+            
+            p {
+                page-break-inside: avoid;
+            }
+            
+            /* منع فصل العناوين عن المحتوى */
+            h1, h2, h3, h4 {
+                page-break-after: avoid;
+            }
+            
+            h1 + *,
+            h2 + *,
+            h3 + *,
+            h4 + * {
+                page-break-before: avoid;
+            }
+            
+            /* الحفاظ على العناصر المهمة معًا */
+            .persona-card,
+            .package-card,
+            .highlight-box,
+            .success-box,
+            .warning-box,
+            .quote-box,
+            .response-box,
+            .week-box,
+            .info-box,
+            .support-contact,
+            table,
+            figure,
+            ul,
+            ol {
+                page-break-inside: avoid;
+            }
+            
+            /* منع تقسيم الجداول بشكل سيء */
+            table {
+                page-break-inside: avoid;
+            }
+            
+            thead {
+                display: table-header-group;
+            }
+            
+            tr {
+                page-break-inside: avoid;
+            }
+            
+            /* منع فصل صفوف الجدول */
+            tr, td, th {
+                page-break-inside: avoid;
+            }
+            
+            /* التأكد من ظهور الروابط بشكل جيد */
+            a {
+                text-decoration: none;
+                color: #1a1a2e;
+            }
+            
+            a[href]::after {
+                content: " (" attr(href) ")";
+                font-size: 9pt;
+                color: #666;
+                word-break: break-all;
+            }
+            
+            /* استثناء روابط البريد الإلكتروني */
+            a[href^="mailto:"]::after {
+                content: "";
+            }
+            
+            /* استثناء روابط الصفحة نفسها */
+            a[href^="#"]::after {
+                content: "";
+            }
+            
+            /* استثناء روابط القفزات */
+            .toc a::after,
+            a.no-print-link::after {
+                content: "";
+            }
+            
+            /* تحسين مظهر القوائم */
+            ul, ol {
+                page-break-before: avoid;
+            }
+            
+            /* التحكم في تدفق المحتوى */
+            .cover {
+                page-break-after: always;
+                page-break-before: avoid;
+                height: 100vh;
+            }
+            
+            .toc-page {
+                page-break-after: always;
+            }
+            
+            /* منع الفراغات الزائدة */
+            .content {
+                padding-top: 0;
+            }
+            
+            /* ضمان عدم وجود فواصل صفحات غير مرغوب فيها */
+            .page-break {
+                page-break-after: always;
+            }
+            
+            .no-page-break {
+                page-break-inside: avoid;
+            }
+            
+            /* تحسين المسافات */
+            body {
+                font-size: 11pt;
+                line-height: 1.5;
+            }
+            
+            /* إخفاء عناصر غير مرغوب فيها في الطباعة */
+            .no-print {
+                display: none;
+            }
+            
+            /* إظهار عنوان المستند */
+            #document-title {
+                position: running(header);
+            }
+            
+            /* تذييل الصفحة */
+            #page-footer {
+                position: running(footer);
+            }
         }
         
-        h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14pt;
-            font-weight: 600;
-            color: #16213e;
-            margin-top: 0.6cm;
-            margin-bottom: 0.3cm;
-            page-break-after: avoid;
-        }
-        
-        h3 {
-            font-family: 'Inter', sans-serif;
-            font-size: 12pt;
-            font-weight: 600;
-            color: #1a1a2e;
-            margin-top: 0.4cm;
-            margin-bottom: 0.2cm;
-            page-break-after: avoid;
-        }
-        
-        h4 {
-            font-family: 'Inter', sans-serif;
-            font-size: 11pt;
-            font-weight: 600;
-            color: #16213e;
-            margin-top: 0.3cm;
-            margin-bottom: 0.15cm;
-        }
-        
-        p {
-            margin-bottom: 0.3cm;
-            text-align: justify;
-            text-align-last: left;
-        }
-        
-        ul, ol {
-            margin-left: 0.8cm;
-            margin-bottom: 0.4cm;
-        }
-        
-        li {
-            margin-bottom: 0.15cm;
-        }
-        
-        /* Tables */
-        table {
-            width: 100%;
-            max-width: 100%;
-            border-collapse: collapse;
-            margin: 0.5cm 0;
-            font-size: 10pt;
-            page-break-inside: avoid;
-        }
-        
-        thead {
-            display: table-header-group;
-        }
-        
-        th {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
-            background: linear-gradient(135deg, #1a1a3e, #16213e);
-            color: white;
-            padding: 0.3cm;
-            text-align: left;
-            font-size: 9pt;
-            letter-spacing: 0.5px;
-        }
-        
-        td {
-            padding: 0.25cm 0.3cm;
-            border-bottom: 1px solid #e0e0e0;
-            vertical-align: top;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        
-        tr {
-            page-break-inside: avoid;
-        }
-        
-        /* Persona Card */
-        .persona-card {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-left: 4px solid #8a2be2;
-            padding: 0.5cm;
-            margin: 0.5cm 0;
-            border-radius: 0 8px 8px 0;
-            page-break-inside: avoid;
-        }
-        
-        .persona-title {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
-            color: #16213e;
-            margin-bottom: 0.3cm;
-            font-size: 12pt;
-        }
-        
-        .persona-tag {
-            display: inline-block;
-            background: linear-gradient(135deg, #8a2be2, #9D4EDD);
-            color: white;
-            padding: 0.1cm 0.4cm;
-            border-radius: 12px;
-            font-size: 8pt;
-            font-weight: 600;
-            margin-right: 0.2cm;
-        }
-        
-        /* Highlight Box */
-        .highlight-box {
-            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
-            border-left: 4px solid #9D4EDD;
-            padding: 0.4cm;
-            margin: 0.5cm 0;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .highlight-box-title {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
-            color: #16213e;
-            margin-bottom: 0.2cm;
-            font-size: 10pt;
-        }
-        
-        /* Success Box */
-        .success-box {
-            background: linear-gradient(135deg, #f0fff4, #e6ffed);
-            border-left: 4px solid #38a169;
-            padding: 0.4cm;
-            margin: 0.5cm 0;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        /* Warning Box */
-        .warning-box {
-            background: linear-gradient(135deg, #fff5f5, #ffe8e8);
-            border-left: 4px solid #e53e3e;
-            padding: 0.4cm;
-            margin: 0.5cm 0;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        /* Quote Box */
-        .quote-box {
-            background: linear-gradient(135deg, #faf5ff, #f3e8ff);
-            border-left: 4px solid #8a2be2;
-            padding: 0.4cm;
-            margin: 0.5cm 0;
-            border-radius: 0 8px 8px 0;
-            font-style: italic;
-            color: #4a5568;
-        }
-        
-        /* Response Box */
-        .response-box {
-            background: linear-gradient(135deg, #f7fafc, #edf2f7);
-            border: 1px solid #e2e8f0;
-            padding: 0.4cm;
-            margin: 0.4cm 0;
-            border-radius: 8px;
-        }
-        
-        .response-label {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
-            color: #8a2be2;
-            font-size: 9pt;
-            margin-bottom: 0.2cm;
-        }
-        
-        /* Package Card */
-        .package-card {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 2px solid #9D4EDD;
-            padding: 0.5cm;
-            margin: 0.5cm 0;
-            border-radius: 8px;
-            page-break-inside: avoid;
-        }
-        
-        .package-title {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            color: #16213e;
-            margin-bottom: 0.2cm;
-            font-size: 13pt;
-        }
-        
-        .package-price {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            color: #9D4EDD;
-            font-size: 16pt;
-        }
-        
-        .package-commission {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
-            color: #8a2be2;
-            font-size: 11pt;
-        }
-        
-        /* Commission Highlight */
-        .commission-highlight {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            color: #9D4EDD;
-            font-size: 12pt;
-        }
-        
-        /* Links */
-        a {
-            color: #8a2be2;
-            text-decoration: none;
-        }
-        
-        a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Figure */
-        figure {
-            margin: 0.5cm 0;
-            text-align: center;
-            page-break-inside: avoid;
-        }
-        
-        figure img {
-            max-width: 100%;
-            max-height: 35vh;
-            height: auto;
-        }
-        
-        figcaption {
-            font-size: 9pt;
-            color: #666;
-            margin-top: 0.2cm;
-            font-style: italic;
-        }
-        
-        figcaption::before {
-            content: attr(data-label) ": ";
-            font-weight: 600;
-            font-style: normal;
-        }
-        
-        /* Checkmark */
-        .check {
-            color: #38a169;
-            font-weight: bold;
-        }
-        
-        .cross {
-            color: #e53e3e;
-            font-weight: bold;
-        }
-        
-        /* Week Box */
-        .week-box {
-            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
-            padding: 0.3cm;
-            margin: 0.3cm 0;
-            border-radius: 6px;
-        }
-        
-        .week-title {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
-            color: #16213e;
-            font-size: 10pt;
-        }
-        
-        /* Prevent overflow */
-        pre, table, figure, img, svg, blockquote {
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-        
-        a { word-break: break-all; }
-        
-        /* Page break */
-        .page-break {
-            page-break-after: always;
-        }
-        
-        /* Support Contact */
-        .support-contact {
-            background: linear-gradient(135deg, #1a1a3e, #16213e);
-            color: white;
-            padding: 0.4cm;
-            border-radius: 8px;
-            margin: 0.3cm 0;
-        }
-        
-        .support-contact a {
-            color: #9D4EDD;
+        /* تحسينات إضافية للعرض على الشاشة */
+        @media screen {
+            body {
+                max-width: 210mm;
+                margin: 0 auto;
+                background: white;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+            
+            .cover {
+                min-height: 297mm;
+            }
         }
     </style>
 </head>
