@@ -14,8 +14,8 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            font-size: 10pt;
-            line-height: 1.5;
+            font-size: 9.5pt;
+            line-height: 1.4;
             color: #1a1a2e;
             margin: 0;
             padding: 0;
@@ -23,9 +23,9 @@
         
         @page {
             size: A4;
-            margin: 1.8cm 1.5cm 2cm 1.5cm;
-            @top-center { content: string(doctitle); font-size: 9pt; color: #666; }
-            @bottom-center { content: counter(page); font-size: 9pt; color: #666; }
+            margin: 1.2cm 1cm 1.2cm 1cm;
+            @top-center { content: string(doctitle); font-size: 8pt; color: #666; }
+            @bottom-center { content: counter(page); font-size: 8pt; color: #666; }
         }
         
         @page :first {
@@ -34,13 +34,16 @@
             @bottom-center { content: none; }
         }
         
-        @page cover { @top-center { content: none; } @bottom-center { content: none; } }
-        @page toc { @top-center { content: none; } @bottom-center { content: none; } }
+        @page cover { 
+            margin: 0;
+            @top-center { content: none; } 
+            @bottom-center { content: none; } 
+        }
         
         body { string-set: doctitle ""; }
         h1 { string-set: doctitle content(); }
         
-        /* Cover Page */
+        /* Cover Page - Full size no margins */
         .cover {
             width: 210mm;
             height: 297mm;
@@ -50,6 +53,8 @@
             page: cover;
             page-break-after: always;
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
+            break-after: page;
+            page-break-after: always;
         }
         
         .cover::before {
@@ -167,61 +172,77 @@
             color: rgba(255,255,255,0.4);
         }
         
-        /* Content Styles */
+        /* Content Styles - Optimized for print */
         .content {
-            padding-top: 0.3cm;
+            padding-top: 0.2cm;
         }
         
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 14pt;
+            font-size: 13pt;
             font-weight: 600;
             color: #1a1a2e;
-            margin-top: 0.5cm;
-            margin-bottom: 0.3cm;
-            padding-bottom: 0.15cm;
+            margin-top: 0.4cm;
+            margin-bottom: 0.25cm;
+            padding-bottom: 0.1cm;
             border-bottom: 2px solid #9D4EDD;
+            break-after: avoid;
             page-break-after: avoid;
+            orphans: 3;
+            widows: 3;
         }
         
         h2 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 11pt;
+            font-size: 10.5pt;
             font-weight: 600;
             color: #16213e;
-            margin-top: 0.4cm;
-            margin-bottom: 0.2cm;
+            margin-top: 0.35cm;
+            margin-bottom: 0.15cm;
+            break-after: avoid;
             page-break-after: avoid;
+            orphans: 3;
+            widows: 3;
         }
         
         h3 {
             font-family: 'Inter', sans-serif;
-            font-size: 10pt;
+            font-size: 9.5pt;
             font-weight: 600;
             color: #1a1a2e;
-            margin-top: 0.3cm;
-            margin-bottom: 0.15cm;
+            margin-top: 0.25cm;
+            margin-bottom: 0.1cm;
+            break-after: avoid;
             page-break-after: avoid;
+            orphans: 3;
+            widows: 3;
         }
         
         p {
-            margin-bottom: 0.2cm;
+            margin-bottom: 0.15cm;
             text-align: justify;
             text-align-last: left;
+            orphans: 3;
+            widows: 3;
+            break-inside: auto;
+            page-break-inside: auto;
         }
         
-        /* Tables */
+        /* Tables - Optimized */
         table {
             width: 100%;
             max-width: 100%;
             border-collapse: collapse;
-            margin: 0.3cm 0;
-            font-size: 8.5pt;
-            page-break-inside: avoid;
+            margin: 0.2cm 0;
+            font-size: 8pt;
+            break-inside: auto;
+            page-break-inside: auto;
         }
         
         thead {
             display: table-header-group;
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
         
         th {
@@ -229,49 +250,60 @@
             font-weight: 600;
             background: linear-gradient(135deg, #1a1a3e, #16213e);
             color: white;
-            padding: 0.2cm;
+            padding: 0.15cm 0.2cm;
             text-align: left;
-            font-size: 8pt;
+            font-size: 7.5pt;
             letter-spacing: 0.3px;
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
         
         td {
-            padding: 0.15cm 0.2cm;
+            padding: 0.1cm 0.15cm;
             border-bottom: 1px solid #e0e0e0;
             vertical-align: top;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        
+        tr {
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
         
         tr:nth-child(even) {
             background-color: #f8f9fa;
         }
         
-        tr {
-            page-break-inside: avoid;
-        }
-        
         /* Highlight Box */
         .highlight-box {
             background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
             border-left: 3px solid #9D4EDD;
-            padding: 0.25cm;
-            margin: 0.3cm 0;
+            padding: 0.2cm;
+            margin: 0.2cm 0;
             border-radius: 0 6px 6px 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
         
         .info-box {
             background: linear-gradient(135deg, #f0fff4, #e6ffed);
             border-left: 3px solid #38a169;
-            padding: 0.25cm;
-            margin: 0.3cm 0;
+            padding: 0.2cm;
+            margin: 0.2cm 0;
             border-radius: 0 6px 6px 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
         
         .warning-box {
             background: linear-gradient(135deg, #fff5f5, #ffe8e8);
             border-left: 3px solid #e53e3e;
-            padding: 0.25cm;
-            margin: 0.3cm 0;
+            padding: 0.2cm;
+            margin: 0.2cm 0;
             border-radius: 0 6px 6px 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
         
         /* Commission Highlight */
@@ -300,21 +332,22 @@
         
         /* Figure */
         figure {
-            margin: 0.4cm 0;
+            margin: 0.25cm 0;
             text-align: center;
+            break-inside: avoid;
             page-break-inside: avoid;
         }
         
         figure img {
             max-width: 100%;
-            max-height: 30vh;
+            max-height: 25vh;
             height: auto;
         }
         
         figcaption {
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #666;
-            margin-top: 0.15cm;
+            margin-top: 0.1cm;
             font-style: italic;
         }
         
@@ -328,24 +361,27 @@
         .key-numbers {
             background: linear-gradient(135deg, #1a1a3e, #16213e);
             color: white;
-            padding: 0.4cm;
+            padding: 0.3cm;
             border-radius: 8px;
-            margin: 0.4cm 0;
+            margin: 0.3cm 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
         
         .key-numbers h3 {
             color: #9D4EDD;
             font-family: 'Orbitron', sans-serif;
-            margin-bottom: 0.2cm;
+            margin-bottom: 0.15cm;
         }
         
         .key-numbers ul {
-            margin-left: 0.6cm;
+            margin-left: 0.5cm;
+            margin-bottom: 0;
         }
         
         .key-numbers li {
-            margin-bottom: 0.1cm;
-            font-size: 9pt;
+            margin-bottom: 0.05cm;
+            font-size: 8.5pt;
         }
         
         /* Prevent overflow */
@@ -359,11 +395,23 @@
         /* Two column layout for small tables */
         .two-col {
             display: flex;
-            gap: 0.5cm;
+            gap: 0.3cm;
         }
         
         .two-col table {
             flex: 1;
+        }
+        
+        /* Lists */
+        ul, ol {
+            margin-left: 0.6cm;
+            margin-bottom: 0.2cm;
+        }
+        
+        li {
+            margin-bottom: 0.05cm;
+            orphans: 2;
+            widows: 2;
         }
     </style>
 </head>
@@ -848,8 +896,8 @@
             </ul>
         </div>
 
-        <div class="highlight-box" style="margin-top: 0.5cm;">
-            <p style="font-size: 8pt; color: #666; text-align: center;">
+        <div class="highlight-box" style="margin-top: 0.3cm;">
+            <p style="font-size: 7.5pt; color: #666; text-align: center;">
                 <strong>Document Version:</strong> 2.0<br>
                 <strong>Last Updated:</strong> March 5, 2026<br>
                 <strong>Status:</strong> Ready for Distribution
@@ -858,3 +906,4 @@
     </div>
 </body>
 </html>
+
