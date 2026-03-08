@@ -11,44 +11,36 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Inter', sans-serif;
-            font-size: 10pt;
-            line-height: 1.4;
+            font-size: 11pt;
+            line-height: 1.6;
             color: #1a1a2e;
             margin: 0;
             padding: 0;
         }
-
+        
         @page {
             size: A4;
-            margin: 1.2cm 1cm 1.2cm 1cm;
-            @top-center { content: string(doctitle); font-size: 8pt; color: #666; }
-            @bottom-center { content: counter(page); font-size: 8pt; color: #666; }
+            margin: 2cm 2cm 2.5cm 2cm;
+            @top-center { content: string(doctitle); font-size: 9pt; color: #666; }
+            @bottom-center { content: counter(page); font-size: 9pt; color: #666; }
         }
-
+        
         @page :first {
             margin: 0;
             @top-center { content: none; }
             @bottom-center { content: none; }
         }
-
-        @page cover { 
-            margin: 0;
-            @top-center { content: none; } 
-            @bottom-center { content: none; } 
-        }
-
-        @page toc { 
-            @top-center { content: none; } 
-            @bottom-center { content: none; } 
-        }
-
+        
+        @page cover { @top-center { content: none; } @bottom-center { content: none; } }
+        @page toc { @top-center { content: none; } @bottom-center { content: none; } }
+        
         body { string-set: doctitle ""; }
         h1 { string-set: doctitle content(); }
-
-        /* Cover Page - Full size */
+        
+        /* Cover Page */
         .cover {
             width: 210mm;
             height: 297mm;
@@ -57,10 +49,9 @@
             overflow: hidden;
             page: cover;
             page-break-after: always;
-            break-after: page;
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
         }
-
+        
         .cover::before {
             content: '';
             position: absolute;
@@ -71,7 +62,7 @@
             background: radial-gradient(ellipse, rgba(157,78,221,0.1) 0%, transparent 70%);
             transform: rotate(-15deg);
         }
-
+        
         .cover::after {
             content: '';
             position: absolute;
@@ -81,7 +72,7 @@
             height: 100%;
             background: radial-gradient(ellipse, rgba(138,43,226,0.08) 0%, transparent 60%);
         }
-
+        
         .cover-accent {
             position: absolute;
             top: 0;
@@ -90,7 +81,7 @@
             height: 8px;
             background: linear-gradient(90deg, #9D4EDD, #8a2be2, #9D4EDD);
         }
-
+        
         .cover-grid {
             position: absolute;
             top: 0;
@@ -102,7 +93,7 @@
                 linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
             background-size: 40px 40px;
         }
-
+        
         .cover-content {
             position: absolute;
             top: 50%;
@@ -112,7 +103,7 @@
             width: 85%;
             z-index: 10;
         }
-
+        
         .cover-logo {
             font-family: 'Orbitron', sans-serif;
             font-size: 48pt;
@@ -124,7 +115,7 @@
             margin-bottom: 0.5cm;
             letter-spacing: 4px;
         }
-
+        
         .cover-title {
             font-family: 'Orbitron', sans-serif;
             font-size: 22pt;
@@ -133,7 +124,7 @@
             margin-bottom: 0.3cm;
             letter-spacing: 2px;
         }
-
+        
         .cover-subtitle {
             font-family: 'Inter', sans-serif;
             font-size: 14pt;
@@ -141,7 +132,7 @@
             color: rgba(255,255,255,0.7);
             margin-bottom: 2cm;
         }
-
+        
         .cover-badge {
             display: inline-block;
             padding: 0.4cm 1.2cm;
@@ -153,14 +144,14 @@
             letter-spacing: 2px;
             margin-bottom: 2cm;
         }
-
+        
         .cover-meta {
             font-family: 'Inter', sans-serif;
             font-size: 10pt;
             color: rgba(255,255,255,0.5);
             line-height: 2;
         }
-
+        
         .cover-footer {
             position: absolute;
             bottom: 2cm;
@@ -169,357 +160,315 @@
             text-align: center;
             z-index: 10;
         }
-
+        
         .cover-version {
             font-family: 'Inter', sans-serif;
             font-size: 9pt;
             color: rgba(255,255,255,0.4);
         }
-
+        
         /* Table of Contents */
         .toc-page {
             page: toc;
             page-break-after: always;
-            break-after: page;
         }
-
+        
         .toc-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 18pt;
+            font-size: 20pt;
             font-weight: 600;
             color: #1a1a2e;
-            margin-bottom: 0.6cm;
-            padding-bottom: 0.2cm;
+            margin-bottom: 1cm;
+            padding-bottom: 0.3cm;
             border-bottom: 3px solid #9D4EDD;
-            break-after: avoid;
-            page-break-after: avoid;
         }
-
+        
         .toc {
             list-style: none;
             padding: 0;
         }
-
+        
         .toc li {
-            margin-bottom: 0.2cm;
-            font-size: 9.5pt;
-            break-inside: avoid;
-            page-break-inside: avoid;
+            margin-bottom: 0.4cm;
+            font-size: 11pt;
         }
-
+        
         .toc a {
             color: #1a1a2e;
             text-decoration: none;
             display: flex;
             justify-content: space-between;
         }
-
+        
         .toc a::after {
             content: leader('.') target-counter(attr(href url), page);
         }
-
+        
         .toc-section {
             font-weight: 600;
             color: #16213e;
         }
-
+        
         .toc-subsection {
-            padding-left: 0.8cm;
+            padding-left: 1cm;
             font-weight: 400;
             color: #444;
         }
-
+        
         /* Content Styles */
         .content {
-            padding-top: 0.2cm;
+            padding-top: 0.5cm;
         }
-
+        
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 15pt;
+            font-size: 18pt;
             font-weight: 600;
             color: #1a1a2e;
-            margin-top: 0.5cm;
-            margin-bottom: 0.3cm;
-            padding-bottom: 0.15cm;
+            margin-top: 0.8cm;
+            margin-bottom: 0.4cm;
+            padding-bottom: 0.2cm;
             border-bottom: 2px solid #9D4EDD;
-            break-after: avoid;
             page-break-after: avoid;
-            orphans: 3;
-            widows: 3;
         }
-
+        
         h2 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 11.5pt;
+            font-size: 14pt;
             font-weight: 600;
             color: #16213e;
-            margin-top: 0.4cm;
-            margin-bottom: 0.2cm;
-            break-after: avoid;
+            margin-top: 0.6cm;
+            margin-bottom: 0.3cm;
             page-break-after: avoid;
-            orphans: 3;
-            widows: 3;
         }
-
+        
         h3 {
             font-family: 'Inter', sans-serif;
-            font-size: 10.5pt;
+            font-size: 12pt;
             font-weight: 600;
             color: #1a1a2e;
-            margin-top: 0.3cm;
-            margin-bottom: 0.15cm;
-            break-after: avoid;
-            page-break-after: avoid;
-            orphans: 3;
-            widows: 3;
-        }
-
-        p {
+            margin-top: 0.4cm;
             margin-bottom: 0.2cm;
+            page-break-after: avoid;
+        }
+        
+        p {
+            margin-bottom: 0.3cm;
             text-align: justify;
             text-align-last: left;
-            orphans: 3;
-            widows: 3;
         }
-
+        
         ul, ol {
-            margin-left: 0.6cm;
-            margin-bottom: 0.3cm;
+            margin-left: 0.8cm;
+            margin-bottom: 0.4cm;
         }
-
+        
         li {
-            margin-bottom: 0.1cm;
-            orphans: 2;
-            widows: 2;
-            break-inside: avoid;
-            page-break-inside: avoid;
+            margin-bottom: 0.15cm;
         }
-
+        
         /* Tables */
         table {
             width: 100%;
             max-width: 100%;
             border-collapse: collapse;
-            margin: 0.3cm 0;
-            font-size: 9pt;
-            break-inside: auto;
-            page-break-inside: auto;
-        }
-
-        thead {
-            display: table-header-group;
-            break-inside: avoid;
+            margin: 0.5cm 0;
+            font-size: 10pt;
             page-break-inside: avoid;
         }
-
+        
+        thead {
+            display: table-header-group;
+        }
+        
         th {
             font-family: 'Orbitron', sans-serif;
             font-weight: 600;
             background: linear-gradient(135deg, #1a1a3e, #16213e);
             color: white;
-            padding: 0.2cm 0.25cm;
+            padding: 0.3cm;
             text-align: left;
-            font-size: 8pt;
+            font-size: 9pt;
             letter-spacing: 0.5px;
-            break-inside: avoid;
-            page-break-inside: avoid;
         }
-
+        
         td {
-            padding: 0.15cm 0.2cm;
+            padding: 0.25cm 0.3cm;
             border-bottom: 1px solid #e0e0e0;
             vertical-align: top;
-            break-inside: avoid;
-            page-break-inside: avoid;
         }
-
-        tr {
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-
+        
         tr:nth-child(even) {
             background-color: #f8f9fa;
         }
-
+        
+        tr {
+            page-break-inside: avoid;
+        }
+        
         /* Highlight Box */
         .highlight-box {
             background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
             border-left: 4px solid #9D4EDD;
-            padding: 0.3cm;
-            margin: 0.3cm 0;
+            padding: 0.4cm;
+            margin: 0.5cm 0;
             border-radius: 0 8px 8px 0;
-            break-inside: avoid;
-            page-break-inside: avoid;
         }
-
+        
         .highlight-box-title {
             font-family: 'Orbitron', sans-serif;
             font-weight: 600;
             color: #16213e;
-            margin-bottom: 0.15cm;
-            font-size: 9pt;
-            break-after: avoid;
-            page-break-after: avoid;
+            margin-bottom: 0.2cm;
+            font-size: 10pt;
         }
-
+        
         /* Warning Box */
         .warning-box {
             background: linear-gradient(135deg, #fff5f5, #ffe8e8);
             border-left: 4px solid #e53e3e;
-            padding: 0.3cm;
-            margin: 0.3cm 0;
+            padding: 0.4cm;
+            margin: 0.5cm 0;
             border-radius: 0 8px 8px 0;
-            break-inside: avoid;
-            page-break-inside: avoid;
         }
-
+        
         /* Info Box */
         .info-box {
             background: linear-gradient(135deg, #f0fff4, #e6ffed);
             border-left: 4px solid #38a169;
-            padding: 0.3cm;
-            margin: 0.3cm 0;
+            padding: 0.4cm;
+            margin: 0.5cm 0;
             border-radius: 0 8px 8px 0;
-            break-inside: avoid;
-            page-break-inside: avoid;
         }
-
+        
         /* Article Number */
         .article-number {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 1.6em;
-            height: 1.6em;
+            width: 1.8em;
+            height: 1.8em;
             background: linear-gradient(135deg, #9D4EDD, #8a2be2);
             color: white;
             border-radius: 50%;
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            font-size: 8.5pt;
-            margin-right: 0.25cm;
+            font-size: 9pt;
+            margin-right: 0.3cm;
         }
-
+        
         /* Commission Highlight */
         .commission-highlight {
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
             color: #9D4EDD;
-            font-size: 10.5pt;
+            font-size: 12pt;
         }
-
+        
         /* Signature Section */
         .signature-section {
-            margin-top: 0.6cm;
-            break-inside: avoid;
+            margin-top: 1cm;
             page-break-inside: avoid;
         }
-
+        
         .signature-box {
             border: 1px solid #ccc;
-            padding: 0.35cm;
-            margin: 0.25cm 0;
+            padding: 0.5cm;
+            margin: 0.3cm 0;
             background: #fafafa;
-            break-inside: avoid;
-            page-break-inside: avoid;
         }
-
+        
         .signature-line {
             border-bottom: 1px solid #333;
             width: 60%;
-            margin: 0.4cm 0 0.15cm 0;
+            margin: 0.5cm 0 0.2cm 0;
         }
-
+        
         /* Links */
         a {
             color: #9D4EDD;
             text-decoration: none;
         }
-
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
         /* Figure */
         figure {
-            margin: 0.3cm 0;
+            margin: 0.5cm 0;
             text-align: center;
-            break-inside: avoid;
             page-break-inside: avoid;
         }
-
+        
         figure img {
             max-width: 100%;
-            max-height: 30vh;
+            max-height: 35vh;
             height: auto;
         }
-
+        
         figcaption {
-            font-size: 8pt;
+            font-size: 9pt;
             color: #666;
-            margin-top: 0.1cm;
+            margin-top: 0.2cm;
             font-style: italic;
         }
-
+        
         figcaption::before {
             content: attr(data-label) ": ";
             font-weight: 600;
             font-style: normal;
         }
-
+        
         /* Prevent overflow */
         pre, table, figure, img, svg, blockquote {
             max-width: 100%;
             box-sizing: border-box;
         }
-
+        
         a { word-break: break-all; }
-
+        
         /* Appendix */
         .appendix-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 13pt;
+            font-size: 16pt;
             font-weight: 600;
             color: #1a1a2e;
-            margin-top: 0.5cm;
-            margin-bottom: 0.3cm;
-            padding-bottom: 0.15cm;
+            margin-top: 0.8cm;
+            margin-bottom: 0.4cm;
+            padding-bottom: 0.2cm;
             border-bottom: 2px solid #8a2be2;
-            break-after: avoid;
-            page-break-after: avoid;
         }
-
+        
         /* Checklist */
         .checklist {
             list-style: none;
             padding: 0;
-            margin: 0.25cm 0;
+            margin: 0.3cm 0;
         }
-
+        
         .checklist li {
-            padding-left: 1cm;
+            padding-left: 1.2cm;
             position: relative;
-            margin-bottom: 0.15cm;
-            break-inside: avoid;
-            page-break-inside: avoid;
+            margin-bottom: 0.2cm;
         }
-
+        
         .checklist li::before {
             content: '';
             position: absolute;
             left: 0;
-            top: 0.08cm;
-            width: 0.5cm;
-            height: 0.5cm;
+            top: 0.1cm;
+            width: 0.6cm;
+            height: 0.6cm;
             border: 2px solid #9D4EDD;
             border-radius: 3px;
         }
-
+        
         /* Page break */
         .page-break {
             page-break-after: always;
-            break-after: page;
         }
     </style>
-<base target="_blank">
 </head>
 <body>
     <div class="cover">
@@ -572,9 +521,9 @@
     <div class="content">
         <h1 id="preamble">Preamble</h1>
         <p>Effective Date: <strong>March 2026</strong></p>
-
+        
         <p>This Agreement is entered into between <strong>OPTILINE Agency</strong> (hereinafter referred to as "the Agency") and <strong>Marketer Name/Company</strong> (hereinafter referred to as "the Marketer"), for the purpose of marketing the Done-For-You Digital Asset services provided by the Agency.</p>
-
+        
         <p>The parties acknowledge that this relationship is established to create a mutually beneficial partnership that drives sales growth while maintaining professional standards and legal compliance.</p>
 
         <div class="highlight-box">
@@ -640,10 +589,10 @@
         </ol>
 
         <h1 id="article3"><span class="article-number">3</span>Payment and Eligibility Terms</h1>
-
+        
         <h2>Commission Accrual and Payment</h2>
         <p>Commissions are due to the Marketer once the Agency has received the full payment from the client and the "Creation" phase of the service has officially commenced.</p>
-
+        
         <p>The Marketer's commission is not affected by the client's revision rounds (typically 2 to 4 rounds), as the sale is considered closed upon initial Full Delivery.</p>
 
         <h2>Minimum Disbursement Threshold</h2>
@@ -711,7 +660,7 @@
         <p>The Marketer must submit such requests through the Agency's designated portal with proper documentation.</p>
 
         <h1 id="article9"><span class="article-number">9</span>Attribution & Persistent Cookies</h1>
-
+        
         <h2>Tracking Mechanism</h2>
         <p>Our ecosystem utilizes high-precision attribution tracking with a <strong>60-day persistent cookie</strong>. If a referred lead converts within 60 days of their initial visit, the commission is automatically and permanently attributed to your Partner ID.</p>
 
@@ -729,7 +678,7 @@
 
         <h1 id="article11"><span class="article-number">11</span>Internal Transaction Mitigation</h1>
         <p>To prevent system exploitation, "Self-Referrals" (purchasing services for personal use via one's own partner link) are strictly prohibited.</p>
-
+        
         <p>The Agency's AI-driven audit system monitors for IP and identity overlaps to ensure ecosystem fairness. Violations will result in:</p>
         <ul>
             <li>Forfeiture of commissions on flagged transactions</li>
@@ -737,7 +686,7 @@
         </ul>
 
         <h1 id="article12"><span class="article-number">12</span>Refunds, Chargebacks & Clawback Clause</h1>
-
+        
         <h2>Refund Policy</h2>
         <p>In the event that a client requests a refund or initiates a chargeback after the Agency has paid the Marketer's commission, the following applies:</p>
 
@@ -754,7 +703,7 @@
         <p>The Marketer may dispute a clawback within 7 days of notification by providing evidence of service delivery or client satisfaction. The Agency will review and respond within 5 business days.</p>
 
         <h1 id="article13"><span class="article-number">13</span>Independent Contractor Clause</h1>
-
+        
         <h2>Relationship Definition</h2>
         <p>The Marketer and the Agency acknowledge and agree that:</p>
         <ol>
@@ -775,7 +724,7 @@
         <p>The Marketer is not entitled to any employee benefits, including health insurance, retirement plans, paid leave, or workers' compensation.</p>
 
         <h1 id="article14"><span class="article-number">14</span>Brand License & Usage</h1>
-
+        
         <h2>Limited License Grant</h2>
         <p>The Agency grants the Marketer a limited, non-exclusive, and revocable license to use:</p>
         <ul>
@@ -803,7 +752,7 @@
         </div>
 
         <h1 id="article15"><span class="article-number">15</span>Termination Clause</h1>
-
+        
         <h2>Termination Rights</h2>
         <p>Either party may terminate this agreement at any time and for any reason by providing written notice (email is acceptable) with a minimum of <strong>7 days advance notice</strong>.</p>
 
@@ -834,7 +783,7 @@
         </ul>
 
         <h1 id="article16"><span class="article-number">16</span>Limitation of Liability</h1>
-
+        
         <h2>Liability Caps</h2>
         <p>Neither party shall be liable to the other for:</p>
         <ul>
@@ -846,7 +795,7 @@
         <p>The Agency's total liability under this agreement shall not exceed the total commissions paid to the Marketer in the 12 months preceding the claim.</p>
 
         <h1 id="article17"><span class="article-number">17</span>Dispute Resolution</h1>
-
+        
         <h2>Informal Resolution</h2>
         <p>In the event of a dispute, the parties agree to attempt resolution through good-faith negotiation within 14 days of written notice.</p>
 
@@ -869,7 +818,7 @@
         <p><strong>Notice of Changes:</strong> The Agency will provide 30 days advance notice of material changes. Continued participation constitutes acceptance of amended terms.</p>
 
         <h1 id="article19"><span class="article-number">19</span>General Provisions</h1>
-
+        
         <h2>Entire Agreement</h2>
         <p>This agreement constitutes the entire agreement between the parties and supersedes all prior negotiations, representations, and agreements.</p>
 
@@ -883,7 +832,7 @@
         <p>The failure of either party to enforce any provision does not constitute a waiver of that provision or any other provision.</p>
 
         <h1 id="signatures">Signatures</h1>
-
+        
         <div class="signature-section">
             <div class="signature-box">
                 <h3>OPTILINE AGENCY</h3>
@@ -892,7 +841,7 @@
                 <p>Title: _____________________________</p>
                 <p>Date: _____________________________</p>
             </div>
-
+            
             <div class="signature-box">
                 <h3>SALES PARTNER</h3>
                 <p>Signature: _____________________________</p>
@@ -944,14 +893,5 @@
             <li>Marketing complies with FTC guidelines and platform policies</li>
             <li>Agency branding is used only as specified in Article 14</li>
         </ul>
-
-        <div class="highlight-box" style="margin-top: 0.5cm;">
-            <p style="font-size: 8pt; color: #666; text-align: center;">
-                <strong>Document Version:</strong> 2.0 (Updated with Legal Protections)<br>
-                <strong>Last Updated:</strong> March 2026<br>
-                <strong>Next Review Date:</strong> March 2027
-            </p>
-        </div>
-    </div>
 </body>
 </html>
