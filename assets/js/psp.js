@@ -189,6 +189,11 @@ document.addEventListener("DOMContentLoaded", () => {
         showLocalError("Please enter a valid email address.");
         return;
       }
+      const socialInput = els.enrollForm.querySelector('input[name="social"]');
+      if (!socialInput || !socialInput.value.trim() || !/^https?:\/\/.+/i.test(socialInput.value.trim())) {
+        showLocalError("Please enter a valid URL starting with http:// or https://");
+        return;
+      }
       const formData = new FormData(els.enrollForm);
       const turnstileToken = formData.get("cf-turnstile-response");
       if (!turnstileToken) {
@@ -852,15 +857,21 @@ document.addEventListener("DOMContentLoaded", () => {
         name: document.getElementById("partnerName").value.trim(),
         email: document.getElementById("partnerEmail").value.trim(),
         phone: document.getElementById("partnerPhone").value.trim(),
+        social: document.getElementById("partnerSocial") ? document.getElementById("partnerSocial").value.trim() : "",
         message: document.getElementById("partnerMessage").value.trim(),
       };
-      if (!formData.name || !formData.email || !formData.message) {
+      if (!formData.name || !formData.email || !formData.phone || !formData.social || !formData.message) {
         showFormError("Please fill in all required fields.");
         resetSubmitButton(submitBtn, originalText);
         return;
       }
       if (!validateEmail(formData.email)) {
         showFormError("Please enter a valid email address.");
+        resetSubmitButton(submitBtn, originalText);
+        return;
+      }
+      if (!/^https?:\/\/.+/i.test(formData.social)) {
+        showFormError("Please enter a valid URL starting with http:// or https://");
         resetSubmitButton(submitBtn, originalText);
         return;
       }
@@ -1217,6 +1228,7 @@ const inputsToSave = [
   "partnerName",
   "partnerPhone",
   "partnerEmail",
+  "partnerSocial",
   "partnerMessage",
 ];
 inputsToSave.forEach((id) => {
