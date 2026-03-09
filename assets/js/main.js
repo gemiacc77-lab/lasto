@@ -795,3 +795,27 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+gsap.registerPlugin(ScrollTrigger);
+
+const timelineProgress = document.querySelector(".process-timeline-progress");
+const steps = document.querySelectorAll(".process-step");
+
+gsap.to(timelineProgress, {
+  height: "100%",
+  ease: "none",
+  scrollTrigger: {
+    trigger: ".process-timeline",
+    start: "top 70%",
+    end: "bottom 70%",
+    scrub: 1,
+  },
+});
+
+steps.forEach((step) => {
+  ScrollTrigger.create({
+    trigger: step,
+    start: "top 70%",
+    onEnter: () => step.classList.add("active-step"),
+    onLeaveBack: () => step.classList.remove("active-step"),
+  });
+});
