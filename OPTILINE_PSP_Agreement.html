@@ -4,8 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OPTILINE Partner Success Program (PSP) - Network Agreement</title>
+    <meta name="author" content="OPTILINE Agency">
+    <meta name="subject" content="Partner Success Program Documentation">
+    <meta name="copyright" content="OPTILINE Agency © 2026">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body::after {
+            content: "OPTILINE PARTNER";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80pt;
+            color: rgba(0, 0, 0, 0.03); 
+            z-index: -1;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            pointer-events: none;
+            white-space: nowrap;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -23,9 +40,11 @@
         
         @page {
             size: A4;
-            margin: 2cm 2cm 2.5cm 2cm;
-            @top-center { content: string(doctitle); font-size: 9pt; color: #666; }
-            @bottom-center { content: counter(page); font-size: 9pt; color: #666; }
+            margin: 1.2cm 1cm 1.2cm 1cm;
+            @top-center { content: string(doctitle); font-size: 8pt; color: #666; }
+            @bottom-left { content: "OPTILINE Agency © 2026"; font-size: 8pt; color: #888; font-family: 'Inter', sans-serif; }
+            @bottom-center { content: "Page " counter(page); font-size: 8pt; color: #666; font-family: 'Inter', sans-serif; }
+            @bottom-right { content: "Confidential & Proprietary"; font-size: 8pt; color: #888; font-family: 'Inter', sans-serif; }
         }
         
         @page :first {
@@ -40,7 +59,6 @@
         body { string-set: doctitle ""; }
         h1 { string-set: doctitle content(); }
         
-        /* Cover Page */
         .cover {
             width: 210mm;
             height: 297mm;
@@ -49,28 +67,8 @@
             overflow: hidden;
             page: cover;
             page-break-after: always;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
-        }
-        
-        .cover::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -30%;
-            width: 80%;
-            height: 150%;
-            background: radial-gradient(ellipse, rgba(157,78,221,0.1) 0%, transparent 70%);
-            transform: rotate(-15deg);
-        }
-        
-        .cover::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -20%;
-            width: 60%;
-            height: 100%;
-            background: radial-gradient(ellipse, rgba(138,43,226,0.08) 0%, transparent 60%);
+            break-after: page;
+            background-color: #2D0B50; 
         }
         
         .cover-accent {
@@ -80,18 +78,6 @@
             width: 100%;
             height: 8px;
             background: linear-gradient(90deg, #9D4EDD, #8a2be2, #9D4EDD);
-        }
-        
-        .cover-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
         }
         
         .cover-content {
