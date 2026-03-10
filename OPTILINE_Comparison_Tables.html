@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OPTILINE Comparison Tables & Reference Data</title>
+    <meta name="author" content="OPTILINE Agency">
+    <meta name="subject" content="Partner Success Program Documentation">
+    <meta name="copyright" content="OPTILINE Agency © 2026">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -20,12 +23,27 @@
             margin: 0;
             padding: 0;
         }
-        
+        body::after {
+            content: "OPTILINE PARTNER";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80pt;
+            color: rgba(0, 0, 0, 0.03); 
+            z-index: -1;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            pointer-events: none;
+            white-space: nowrap;
+        }
         @page {
             size: A4;
             margin: 1.2cm 1cm 1.2cm 1cm;
             @top-center { content: string(doctitle); font-size: 8pt; color: #666; }
-            @bottom-center { content: counter(page); font-size: 8pt; color: #666; }
+            @bottom-left { content: "OPTILINE Agency © 2026"; font-size: 8pt; color: #888; font-family: 'Inter', sans-serif; }
+            @bottom-center { content: "Page " counter(page); font-size: 8pt; color: #666; font-family: 'Inter', sans-serif; }
+            @bottom-right { content: "Confidential & Proprietary"; font-size: 8pt; color: #888; font-family: 'Inter', sans-serif; }
         }
         
         @page :first {
@@ -43,7 +61,7 @@
         body { string-set: doctitle ""; }
         h1 { string-set: doctitle content(); }
         
-        /* Cover Page - Full size no margins */
+        /* Cover Page - Solid Background */
         .cover {
             width: 210mm;
             height: 297mm;
@@ -52,30 +70,8 @@
             overflow: hidden;
             page: cover;
             page-break-after: always;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
             break-after: page;
-            page-break-after: always;
-        }
-        
-        .cover::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -30%;
-            width: 80%;
-            height: 150%;
-            background: radial-gradient(ellipse, rgba(157,78,221,0.1) 0%, transparent 70%);
-            transform: rotate(-15deg);
-        }
-        
-        .cover::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -20%;
-            width: 60%;
-            height: 100%;
-            background: radial-gradient(ellipse, rgba(138,43,226,0.08) 0%, transparent 60%);
+            background-color: #2D0B50; 
         }
         
         .cover-accent {
@@ -85,18 +81,6 @@
             width: 100%;
             height: 8px;
             background: linear-gradient(90deg, #9D4EDD, #8a2be2, #9D4EDD);
-        }
-        
-        .cover-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
         }
         
         .cover-content {
@@ -175,7 +159,57 @@
             font-size: 9pt;
             color: rgba(255,255,255,0.4);
         }
+        /* Table of Contents */
+        @page toc { 
+            @top-center { content: none; } 
+            @bottom-center { content: none; } 
+        }
         
+        .toc-page {
+            page: toc;
+            page-break-after: always;
+            break-after: page;
+        }
+        
+        .toc-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18pt;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 0.6cm;
+            padding-bottom: 0.2cm;
+            border-bottom: 3px solid #9D4EDD;
+            break-after: avoid;
+            page-break-after: avoid;
+        }
+        
+        .toc {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .toc li {
+            margin-bottom: 0.25cm;
+            font-size: 10pt;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        
+        .toc a {
+            color: #1a1a2e;
+            text-decoration: none;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .toc a::after {
+            content: leader('.') target-counter(attr(href url), page);
+        }
+        
+        .toc-section {
+            font-weight: 600;
+            color: #16213e;
+        }
         /* Content Styles - Optimized for print */
         .content {
             padding-top: 0.2cm;
@@ -436,9 +470,30 @@
             <div class="cover-version">Confidential - For Authorized Partners Only</div>
         </div>
     </div>
+<div class="toc-page">
+        <h2 class="toc-title">Table of Contents</h2>
+        <ul class="toc">
+            <li class="toc-section"><a href="#table1">Table 1: Commission Structure & ROI</a></li>
+            <li class="toc-section"><a href="#table2">Table 2: Complete Feature Breakdown</a></li>
+            <li class="toc-section"><a href="#table3">Table 3: Buyer Persona Quick Reference</a></li>
+            <li class="toc-section"><a href="#table4">Table 4: Objection Handling Matrix</a></li>
+            <li class="toc-section"><a href="#table5">Table 5: Package Selection by Business Type</a></li>
+            <li class="toc-section"><a href="#table6">Table 6: Delivery Timeline Breakdown</a></li>
+            <li class="toc-section"><a href="#table7">Table 7: Payment & Commission Details</a></li>
+            <li class="toc-section"><a href="#table8">Table 8: Legal Protections & Clauses</a></li>
+            <li class="toc-section"><a href="#table9">Table 9: Marketer Milestone Tiers & Rewards</a></li>
+            <li class="toc-section"><a href="#table10">Table 10: Marketing Standards Checklist</a></li>
+            <li class="toc-section"><a href="#table11">Table 11: Comparison - OPTILINE vs Traditional Agency</a></li>
+            <li class="toc-section"><a href="#table12">Table 12: Frequently Asked Questions Reference</a></li>
+            <li class="toc-section"><a href="#table13">Table 13: Content Calendar Template Reference</a></li>
+            <li class="toc-section"><a href="#table14">Table 14: Revision Process Timeline</a></li>
+            <li class="toc-section"><a href="#table15">Table 15: Commission Earning Scenarios</a></li>
+            <li class="toc-section"><a href="#key-numbers">Quick Reference: Key Numbers</a></li>
+        </ul>
+    </div>
 
     <div class="content">
-        <h1>Table 1: Commission Structure & ROI</h1>
+        <h1 id="table1">Table 1: Commission Structure & ROI</h1>
         <figure>
             <img src="https://optiline.online/assets/imgs/pspic/chart_1_commission_structure.png" alt="Commission Structure">
             <figcaption data-label="Figure 1">Commission Structure Comparison by Package</figcaption>
@@ -486,7 +541,7 @@
             </tbody>
         </table>
 
-        <h1>Table 2: Complete Feature Breakdown</h1>
+        <h1 id="table2">Table 2: Complete Feature Breakdown</h1>
         <figure>
             <img src="https://optiline.online/assets/imgs/pspic/chart_2_features_comparison.png" alt="Features Comparison">
             <figcaption data-label="Figure 2">OPTILINE Package Features Comparison</figcaption>
@@ -528,7 +583,7 @@
             </tbody>
         </table>
 
-        <h1>Table 3: Buyer Persona Quick Reference</h1>
+        <h1 id="table3">Table 3: Buyer Persona Quick Reference</h1>
         <figure>
             <img src="https://optiline.online/assets/imgs/pspic/chart_4_buyer_personas.png" alt="Buyer Personas">
             <figcaption data-label="Figure 3">Target Market Distribution by Buyer Persona</figcaption>
@@ -555,7 +610,7 @@
             </tbody>
         </table>
 
-        <h1>Table 4: Objection Handling Matrix</h1>
+        <h1 id="table4">Table 4: Objection Handling Matrix</h1>
         <table>
             <thead>
                 <tr>
@@ -578,7 +633,7 @@
             </tbody>
         </table>
 
-        <h1>Table 5: Package Selection by Business Type</h1>
+        <h1 id="table5">Table 5: Package Selection by Business Type</h1>
         <figure>
             <img src="https://optiline.online/assets/imgs/pspic/chart_7_package_selection.png" alt="Package Selection">
             <figcaption data-label="Figure 4">Recommended Package Distribution by Business Type</figcaption>
@@ -602,7 +657,7 @@
             </tbody>
         </table>
 
-        <h1>Table 6: Delivery Timeline Breakdown</h1>
+        <h1 id="table6">Table 6: Delivery Timeline Breakdown</h1>
         <figure>
             <img src="https://optiline.online/assets/imgs/pspic/chart_3_delivery_timeline.png" alt="Delivery Timeline">
             <figcaption data-label="Figure 5">OPTILINE Delivery Timeline by Package</figcaption>
@@ -625,7 +680,7 @@
             </tbody>
         </table>
 
-        <h1>Table 7: Payment & Commission Details</h1>
+        <h1 id="table7">Table 7: Payment & Commission Details</h1>
         <table>
             <thead>
                 <tr>
@@ -645,7 +700,7 @@
             </tbody>
         </table>
 
-        <h1>Table 8: Legal Protections & Clauses</h1>
+        <h1 id="table8">Table 8: Legal Protections & Clauses</h1>
         <table>
             <thead>
                 <tr>
@@ -666,7 +721,7 @@
             </tbody>
         </table>
 
-        <h1>Table 9: Marketer Milestone Tiers & Rewards</h1>
+        <h1 id="table9">Table 9: Marketer Milestone Tiers & Rewards</h1>
         
         <div class="info-box" style="margin-bottom: 0.4cm;">
             <p><strong>⚠️ Note on Rewards:</strong> We believe in personalized incentives. The specific bonuses for unlocking Bronze, Silver, and Gold tiers are intentionally undisclosed. They will be exclusively tailored to your performance and personality once you hit the target!</p>
@@ -687,7 +742,7 @@
             </tbody>
         </table>
 
-        <h1>Table 10: Marketing Standards Checklist</h1>
+        <h1 id="table10">Table 10: Marketing Standards Checklist</h1>
         <table>
             <thead>
                 <tr>
@@ -707,7 +762,7 @@
             </tbody>
         </table>
 
-        <h1>Table 11: Comparison - OPTILINE vs Traditional Agency</h1>
+        <h1 id="table11">Table 11: Comparison - OPTILINE vs Traditional Agency</h1>
         <figure>
             <img src="https://optiline.online/assets/imgs/pspic/chart_5_roi_comparison.png" alt="ROI Comparison">
             <figcaption data-label="Figure 6">OPTILINE vs Traditional Agency: Cost & Timeline Comparison</figcaption>
@@ -733,7 +788,7 @@
             </tbody>
         </table>
 
-        <h1>Table 12: Frequently Asked Questions Reference</h1>
+        <h1 id="table12">Table 12: Frequently Asked Questions Reference</h1>
         <table>
             <thead>
                 <tr>
@@ -754,7 +809,7 @@
             </tbody>
         </table>
 
-        <h1>Table 13: Content Calendar Template Reference</h1>
+        <h1 id="table13">Table 13: Content Calendar Template Reference</h1>
         <table>
             <thead>
                 <tr>
@@ -777,7 +832,7 @@
             </tbody>
         </table>
 
-        <h1>Table 14: Revision Process Timeline</h1>
+        <h1 id="table14">Table 14: Revision Process Timeline</h1>
         <table>
             <thead>
                 <tr>
@@ -796,7 +851,7 @@
             </tbody>
         </table>
 
-        <h1>Table 15: Commission Earning Scenarios</h1>
+        <h1 id="table15">Table 15: Commission Earning Scenarios</h1>
         <h2>Scenario 1: Consistent Partner (Unlocking Milestones)</h2>
         <table>
             <thead>
@@ -865,7 +920,7 @@
         </table>
 
         <div class="key-numbers">
-            <h3>Quick Reference: Key Numbers</h3>
+            <h3 id="key-numbers">Quick Reference: Key Numbers</h3>
             <ul>
                 <li><strong>3 Packages:</strong> CORE ($799), NEXUS ($1,399), MATRIX ($1,799)</li>
                 <li><strong>3 Commissions:</strong> $100, $150, $200</li>
