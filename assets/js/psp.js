@@ -560,6 +560,9 @@ document.addEventListener("DOMContentLoaded", () => {
           els.loginStage.classList.remove("active");
           els.dashStage.classList.remove("hidden");
           els.dashStage.classList.add("active");
+          setTimeout(() => {
+            gsap.to(window, { duration: 2, scrollTo: { y: 0 }, ease: "power2.inOut" });
+          }, 150);
         },
       }).fromTo(
         ".anim-dash",
@@ -576,6 +579,7 @@ document.addEventListener("DOMContentLoaded", () => {
       els.loginStage.classList.remove("active");
       els.dashStage.classList.remove("hidden");
       els.dashStage.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
   function renderTable(txs) {
