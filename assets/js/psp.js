@@ -513,11 +513,19 @@ document.addEventListener("DOMContentLoaded", () => {
       element.textContent = prefix + finalValue.toLocaleString();
       return;
     }
+    if (typeof ScrollTrigger !== "undefined") {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+    element.textContent = prefix + "0";
     const obj = { val: 0 };
     gsap.to(obj, {
+      scrollTrigger: {
+        trigger: element,
+        start: "top 95%",
+      },
       val: finalValue,
       duration: duration,
-      ease: "power2.inOut",
+      ease: "power2.out",
       onUpdate: function () {
         element.textContent = prefix + Math.floor(obj.val).toLocaleString();
       },
@@ -559,10 +567,10 @@ document.addEventListener("DOMContentLoaded", () => {
         onComplete: () => {
           els.loginStage.classList.remove("active");
           els.dashStage.classList.remove("hidden");
+          document.documentElement.style.scrollBehavior = 'auto';
+          window.scrollTo(0, 0);
           els.dashStage.classList.add("active");
-          setTimeout(() => {
-            gsap.to(window, { duration: 2, scrollTo: { y: 0 }, ease: "power2.inOut" });
-          }, 150);
+          setTimeout(() => { document.documentElement.style.scrollBehavior = 'smooth'; }, 100);
         },
       }).fromTo(
         ".anim-dash",
@@ -578,8 +586,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       els.loginStage.classList.remove("active");
       els.dashStage.classList.remove("hidden");
+      window.scrollTo(0, 0);
       els.dashStage.classList.add("active");
-      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
   function renderTable(txs) {
@@ -1283,4 +1291,48 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 600);
     };
   }
+  const secureBtns = document.querySelectorAll('.secure-dl-btn');
+  secureBtns.forEach(btn => {
+    btn.dataset.originalHtml = btn.innerHTML;
+    btn.addEventListener('click', function(e) {
+      if (!this.classList.contains('confirm-ready')) {
+        e.preventDefault();
+        this.classList.add('confirm-ready');
+        
+        gsap.to(this, {
+          scale: 0.92,
+          opacity: 0.7,
+          duration: 0.1,
+          onComplete: () => {
+            this.innerHTML = '<i class="fas fa-check-double"></i> Click Again';
+            this.style.background = '#5a189a';
+            gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
+          }
+        });
+
+        clearTimeout(this.resetTimer);
+        this.resetTimer = setTimeout(() => {
+          this.classList.remove('confirm-ready');
+          
+          gsap.to(this, {
+            scale: 0.92,
+            opacity: 0.7,
+            duration: 0.1,
+            onComplete: () => {
+              this.innerHTML = this.dataset.originalHtml;
+              this.style.background = '';
+              gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
+            }
+          });
+        }, 2000); 
+      } else {
+        clearTimeout(this.resetTimer);
+        setTimeout(() => {
+          this.classList.remove('confirm-ready');
+          this.innerHTML = this.dataset.originalHtml;
+          this.style.background = '';
+        }, 300);
+      }
+    });
+  });
 });
