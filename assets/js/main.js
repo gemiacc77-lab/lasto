@@ -804,9 +804,9 @@ gsap.to(timelineProgress, {
   height: "100%",
   ease: "none",
   scrollTrigger: {
-    trigger: ".process-timeline",
-    start: "top 70%",
-    end: "bottom 70%",
+    trigger: "#process",
+    start: "top 50%",
+    end: "bottom 50%",
     scrub: 1,
   },
 });
@@ -814,7 +814,7 @@ gsap.to(timelineProgress, {
 steps.forEach((step) => {
   ScrollTrigger.create({
     trigger: step,
-    start: "top 70%",
+    start: "top 50%",
     onEnter: () => step.classList.add("active-step"),
     onLeaveBack: () => step.classList.remove("active-step"),
   });
