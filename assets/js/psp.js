@@ -114,6 +114,25 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       loadDashboard(parsedData.data, true);
     }, 50);
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "partner_login",
+        partnerId: parsedData.data.partnerId,
+        password: parsedData.data.password
+      }),
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        data.data.password = parsedData.data.password;
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+          data: data.data,
+          lastActivity: Date.now()
+        }));
+        loadDashboard(data.data, true);
+      }
+    });
   } else {
     document.documentElement.classList.remove('is-logged-in');
     if (typeof gsap !== "undefined") {
@@ -546,6 +565,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "success") {
+          data.data.password = pass;
           localStorage.setItem(SESSION_KEY, JSON.stringify({
             data: data.data,
             lastActivity: Date.now()
