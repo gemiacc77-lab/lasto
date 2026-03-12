@@ -85,3 +85,102 @@
     font-size: 3rem;
   }
 }
+.withdraw-card {
+  position: relative;
+  overflow: hidden;
+}
+.smart-info-box {
+  background: rgba(138, 43, 226, 0.05);
+  border: 1px solid rgba(138, 43, 226, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+.info-row:last-child {
+  margin-bottom: 0;
+}
+.info-row span {
+  color: var(--text-gray);
+}
+.info-row strong {
+  color: var(--accent-light);
+}
+.withdraw-security-banner {
+  padding: 2rem 0 4rem;
+  position: relative;
+  z-index: 2;
+}
+.security-banner-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2.5rem;
+  background: rgba(18, 8, 47, 0.6);
+  border: 1px solid rgba(138, 43, 226, 0.15);
+  padding: 1.5rem 2rem;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+.sec-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-gray);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+.sec-item:hover {
+  color: var(--text-light);
+}
+.sec-item i {
+  color: var(--accent-light);
+  font-size: 1.2rem;
+  transition: transform 0.3s ease-out, filter 0.3s ease-out;
+}
+.sec-item:hover i {
+  transform: translateY(-4px) scale(1.1);
+  filter: drop-shadow(0 0 8px rgba(138, 43, 226, 0.5));
+}
+#step1-auth, #step2-withdraw, #step3-success {
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 768px) {
+  .security-banner-inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+  }
+}
+.withdraw-hero-text {
+  margin-bottom: 3.5rem !important;
+}
+.withdraw-hero-text .psp-title {
+  margin-bottom: 1.8rem !important;
+}
+@media (max-width: 768px) {
+  .withdraw-hero-text {
+    margin-bottom: 2.5rem !important;
+  }
+  .withdraw-hero-text .psp-title {
+    margin-bottom: 1.2rem !important;
+  }
+}
+#step3-success i {
+  display: inline-block;
+  animation: successPulse 2s infinite ease-in-out;
+}
+@keyframes successPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); filter: drop-shadow(0 0 15px rgba(0, 255, 128, 0.4)); }
+  100% { transform: scale(1); }
+}
