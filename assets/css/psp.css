@@ -511,9 +511,10 @@ body {
 }
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 2rem;
   margin-bottom: 3rem;
+  width: 100%;
 }
 .chart-container {
   position: relative;
@@ -523,11 +524,18 @@ body {
   border: 1px solid var(--card-border-color);
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .chart-wrapper {
-    position: relative;
-    height: 350px;
-    width: 100%;
+  position: relative;
+  height: 350px;
+  width: 100%;
+  max-width: 100%;
+}
+canvas {
+  max-width: 100% !important;
 }
 .data-panel {
   background: var(--card-bg);
