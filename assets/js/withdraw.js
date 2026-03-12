@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     const card = document.querySelector(".login-card");
     const text = document.querySelector(".psp-hero-text");
-    if(card) { card.style.opacity = "1"; card.style.transform = "none"; }
-    if(text) { text.style.opacity = "1"; text.style.transform = "none"; }
+    if (card) { card.style.opacity = "1"; card.style.transform = "none"; }
+    if (text) { text.style.opacity = "1"; text.style.transform = "none"; }
   }
 
   const API_URL = "https://script.google.com/macros/s/AKfycbwWNsRWtnGwvE66VpDOeishxk6jGRT6oJ6Qup73vgHI7mjbMvPPQoTAFcdeHC9CD-_RJQ/exec";
@@ -38,17 +38,48 @@ document.addEventListener("DOMContentLoaded", () => {
     els.pid.value = urlParams.get('pid');
   }
 
-  els.methodSelect.addEventListener("change", () => {
-    if (els.methodSelect.value === "Crypto") {
-      els.networkWrapper.style.display = "block";
-      els.addressInput.placeholder = "USDT Wallet Address";
-      if (typeof gsap !== "undefined") gsap.fromTo(els.networkWrapper, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.3 });
-    } else {
+  function updateSmartInfo() {
+    const box = document.getElementById("smartInfoBox");
+    const estTime = document.getElementById("estTime");
+    const estFee = document.getElementById("estFee");
+    const method = els.methodSelect.value;
+    const network = els.networkSelect.value;
+
+    if (!method) {
+      if (box) box.style.display = "none";
+      return;
+    }
+
+    if (box) {
+      box.style.display = "block";
+      if (typeof gsap !== "undefined" && box.style.opacity === "") {
+        gsap.fromTo(box, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.3 });
+      }
+    }
+
+    if (method === "PayPal") {
       els.networkWrapper.style.display = "none";
       els.networkSelect.value = "";
       els.addressInput.placeholder = "PayPal Email Address";
+      if (estTime) estTime.textContent = "24 - 48 Hours";
+      if (estFee) estFee.textContent = "0% (Covered by OPTILINE)";
+    } else if (method === "Crypto") {
+      els.networkWrapper.style.display = "block";
+      els.addressInput.placeholder = "USDT Wallet Address";
+      if (estTime) estTime.textContent = "1 - 2 Hours";
+      
+      if (network === "TRC20" || network === "Polygon" || network === "BEP20") {
+        if (estFee) estFee.textContent = "~$1.00 USD";
+      } else if (network === "ERC20") {
+        if (estFee) estFee.textContent = "~$5.00 - $15.00 USD";
+      } else {
+        if (estFee) estFee.textContent = "Select Network";
+      }
     }
-  });
+  }
+
+  els.methodSelect.addEventListener("change", updateSmartInfo);
+  if (els.networkSelect) els.networkSelect.addEventListener("change", updateSmartInfo);
 
   els.verifyBtn.addEventListener("click", () => {
     const id = els.pid.value.trim();
@@ -109,6 +140,9 @@ document.addEventListener("DOMContentLoaded", () => {
           gsap.fromTo(els.step2, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
         }
       });
+    } else {
+      els.step1.style.display = "none";
+      els.step2.style.display = "block";
     }
   }
 
@@ -124,10 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       showError(els.withdrawError, "Please enter a valid email address."); return;
     }
-    if (!amount || isNaN(amount)) {
-      showError(els.withdrawError, "Please enter a valid amount."); return;
-    }
-    if (amount < 100) {
+    if (!amount || isNaN(amount) || amount < 100) {
       showError(els.withdrawError, "Minimum withdrawal amount is $100."); return;
     }
     if (amount > maxAvailableBalance) {
@@ -136,13 +167,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!method) {
       showError(els.withdrawError, "Please select a payout method."); return;
     }
-    if (method === "Crypto" && !network) {
-      showError(els.withdrawError, "Please select a transfer network for USDT."); return;
+    if (method === "Crypto") {
+      if (!network) {
+        showError(els.withdrawError, "Please select a transfer network for USDT."); return;
+      }
+      if (network === "TRC20" && !/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(address)) {
+        showError(els.withdrawError, "Invalid TRC20 wallet address. It must start with 'T' and be 34 characters long."); return;
+      }
+      if ((network === "ERC20" || network === "BEP20" || network === "Polygon") && !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        showError(els.withdrawError, "Invalid wallet address for the selected network. It must start with '0x'."); return;
+      }
+    } else if (method === "PayPal") {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)) {
+        showError(els.withdrawError, "Invalid PayPal email address."); return;
+      }
     }
-    if (!address) {
-      showError(els.withdrawError, "Please enter your wallet address or PayPal email."); return;
-    }
-
+    
     const finalMethod = method === "Crypto" ? `USDT (${network})` : method;
 
     els.submitBtn.disabled = true;
@@ -173,6 +213,9 @@ document.addEventListener("DOMContentLoaded", () => {
             gsap.fromTo(els.step3, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5 });
           }
         });
+      } else {
+        els.step2.style.display = "none";
+        els.step3.style.display = "block";
       }
     })
     .catch(err => {
@@ -194,4 +237,25 @@ document.addEventListener("DOMContentLoaded", () => {
     els.verifyBtn.disabled = false;
     els.verifyBtn.querySelector(".btn-txt").textContent = "Verify & Load Balance";
   }
+  [els.pid, els.ppass].forEach(input => {
+    if (input) {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          els.verifyBtn.click();
+        }
+      });
+    }
+  });
+
+  [els.emailInput, els.amountInput, els.addressInput].forEach(input => {
+    if (input) {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          els.submitBtn.click();
+        }
+      });
+    }
+  });
 });
