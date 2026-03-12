@@ -1,8 +1,60 @@
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+const SESSION_KEY = "optiline_psp_session";
+const SESSION_TIMEOUT = 30 * 60 * 1000;
+
+function initSession() {
+  const session = localStorage.getItem(SESSION_KEY);
+  if (session) {
+    const parsed = JSON.parse(session);
+    if (Date.now() - parsed.lastActivity < SESSION_TIMEOUT) {
+      document.documentElement.classList.add('is-logged-in');
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    } else {
+      localStorage.removeItem(SESSION_KEY);
+      document.documentElement.classList.remove('is-logged-in');
+    }
+  } else {
+    document.documentElement.classList.remove('is-logged-in');
+  }
+}
+initSession();
+
+let activityTimeout = null;
+function updateActivity() {
+  if (activityTimeout) return;
+  activityTimeout = setTimeout(() => {
+    const sessionData = localStorage.getItem(SESSION_KEY);
+    if (sessionData) {
+      const parsed = JSON.parse(sessionData);
+      parsed.lastActivity = Date.now();
+      localStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
+    }
+    activityTimeout = null;
+  }, 5000);
+}
+
+['mousemove', 'keydown', 'scroll', 'click', 'touchstart'].forEach(evt => {
+  document.addEventListener(evt, updateActivity, { passive: true });
+});
+
+setInterval(() => {
+  const sessionData = localStorage.getItem(SESSION_KEY);
+  if(sessionData) {
+    const parsed = JSON.parse(sessionData);
+    if (Date.now() - parsed.lastActivity >= SESSION_TIMEOUT) {
+      localStorage.removeItem(SESSION_KEY);
+      window.location.reload();
+    }
+  }
+}, 60000);
+
 document.addEventListener("DOMContentLoaded", () => {
-  const API_URL =
-    "https://script.google.com/macros/s/AKfycbwWNsRWtnGwvE66VpDOeishxk6jGRT6oJ6Qup73vgHI7mjbMvPPQoTAFcdeHC9CD-_RJQ/exec";
-  const ENROLL_WEBHOOK =
-    "https://script.google.com/macros/s/AKfycbyck7pBRCWeseen7SkV4ntkgjRmZ4IepOOwWXq75pk3WbJQnFrVVTV-6FmBoyullnT4/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbwWNsRWtnGwvE66VpDOeishxk6jGRT6oJ6Qup73vgHI7mjbMvPPQoTAFcdeHC9CD-_RJQ/exec";
+  const ENROLL_WEBHOOK = "https://script.google.com/macros/s/AKfycbyck7pBRCWeseen7SkV4ntkgjRmZ4IepOOwWXq75pk3WbJQnFrVVTV-6FmBoyullnT4/exec";
+  
   const els = {
     loginStage: document.getElementById("loginStage"),
     dashStage: document.getElementById("dashStage"),
@@ -36,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resultContainer: document.getElementById("resultContainer"),
     feedTrack: document.getElementById("feedTrack"),
   };
+
   const tips = [
     "Consistency is key: Share your link daily to build momentum.",
     "Your potential is limitless keep pushing boundaries.",
@@ -50,18 +103,27 @@ document.addEventListener("DOMContentLoaded", () => {
     "Your network is your net worth. Expand it.",
     "Legendary status is just a few conversions away.",
   ];
+  
   let charts = { package: null, trend: null };
   let currentTipIndex = 0;
   let currentTransactions = [];
-  if (typeof gsap !== "undefined") {
-    gsap.to(".login-card", {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: "power3.out",
-      delay: 0.2,
-    });
+
+  const activeSession = localStorage.getItem(SESSION_KEY);
+  if (activeSession && document.documentElement.classList.contains('is-logged-in')) {
+    const parsedData = JSON.parse(activeSession);
+    setTimeout(() => {
+      loadDashboard(parsedData.data, true);
+    }, 50);
+  } else {
+    document.documentElement.classList.remove('is-logged-in');
+    if (typeof gsap !== "undefined") {
+      gsap.to(".login-card", { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: 0.2 });
+    } else {
+      const card = document.querySelector(".login-card");
+      if(card) { card.style.opacity = "1"; card.style.transform = "none"; }
+    }
   }
+
   function initializeTipSystem() {
     if (els.tipText && els.prevTip && els.nextTip) {
       updateTipProgress();
@@ -83,39 +145,48 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 8000);
     }
   }
+
   function updateTipDisplay() {
     if (!els.tipText) return;
-    gsap.to(els.tipText, {
-      opacity: 0,
-      y: 20,
-      duration: 0.3,
-      onComplete: () => {
+    if (typeof gsap !== "undefined") {
+      gsap.to(els.tipText, {
+        opacity: 0,
+        y: 20,
+        duration: 0.3,
+        onComplete: () => {
+          els.tipText.textContent = tips[currentTipIndex];
+          gsap.to(els.tipText, {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            ease: "power2.out",
+          });
+        },
+      });
+    } else {
         els.tipText.textContent = tips[currentTipIndex];
-        gsap.to(els.tipText, {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: "power2.out",
-        });
-      },
-    });
+    }
   }
+
   function updateTipProgress() {
     const progressBar = document.querySelector(".tip-progress-bar");
     if (progressBar) {
       const progress = ((currentTipIndex + 1) / tips.length) * 100;
-      gsap.to(progressBar, {
-        width: `${progress}%`,
-        duration: 0.5,
-        ease: "power2.out",
-      });
+      if (typeof gsap !== "undefined") {
+        gsap.to(progressBar, {
+          width: `${progress}%`,
+          duration: 0.5,
+          ease: "power2.out",
+        });
+      } else {
+          progressBar.style.width = `${progress}%`;
+      }
     }
   }
+
   if (els.authBtn) els.authBtn.addEventListener("click", attemptLogin);
   if (document.getElementById("togglePassword")) {
-    document
-      .getElementById("togglePassword")
-      .addEventListener("click", function () {
+    document.getElementById("togglePassword").addEventListener("click", function () {
         const isPass = els.ppass.getAttribute("type") === "password";
         els.ppass.setAttribute("type", isPass ? "text" : "password");
         this.classList.remove(isPass ? "fa-eye-slash" : "fa-eye");
@@ -123,8 +194,14 @@ document.addEventListener("DOMContentLoaded", () => {
         this.style.color = isPass ? "var(--accent-light)" : "var(--text-gray)";
       });
   }
-  if (els.logoutBtn)
-    els.logoutBtn.addEventListener("click", () => window.location.reload());
+
+  if (els.logoutBtn) {
+    els.logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem(SESSION_KEY);
+      window.location.reload();
+    });
+  }
+
   [els.pid, els.ppass].forEach((input) => {
     if (input) {
       input.addEventListener("keydown", (e) => {
@@ -132,13 +209,21 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
+
   if (els.withdrawRequestBtn) {
     els.withdrawRequestBtn.addEventListener("click", () => {
-      const partnerName = els.pName ? els.pName.textContent : "Partner";
-      const subject = encodeURIComponent(`Withdrawal Request - ${partnerName}`);
-      window.location.href = `/contact/?subject=${subject}`;
+      const sessionData = localStorage.getItem(SESSION_KEY);
+      let partnerId = "";
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        if (parsed && parsed.data && parsed.data.partnerId) {
+          partnerId = parsed.data.partnerId;
+        }
+      }
+      window.location.href = `/withdraw/?pid=${partnerId}`;
     });
   }
+
   if (els.copyBtn) {
     els.copyBtn.addEventListener("click", () => {
       navigator.clipboard.writeText(els.refLink.textContent).then(() => {
@@ -155,6 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
+
   if (els.enrollForm) {
     els.enrollForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -180,9 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
       if (!phoneInput.value.startsWith("+")) {
-        showLocalError(
-          "Phone number must start with country code (e.g. +966...).",
-        );
+        showLocalError("Phone number must start with country code (e.g. +966...).");
         return;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
@@ -197,9 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const formData = new FormData(els.enrollForm);
       const turnstileToken = formData.get("cf-turnstile-response");
       if (!turnstileToken) {
-        showLocalError(
-          "Please complete the security check (Captcha) above the button.",
-        );
+        showLocalError("Please complete the security check (Captcha) above the button.");
         return;
       }
       if (feedbackEl) feedbackEl.style.display = "none";
@@ -220,13 +302,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = await response.json();
         if (result.status === "success" || result.result === "success") {
           if (typeof turnstile !== "undefined") turnstile.reset();
-          localStorage.clear();
+          localStorage.removeItem("partnerName");
+          localStorage.removeItem("partnerPhone");
+          localStorage.removeItem("partnerEmail");
+          localStorage.removeItem("partnerSocial");
+          localStorage.removeItem("partnerMessage");
           handleSuccess(result.name || "Partner");
         } else {
           throw new Error(result.message || "Submission failed");
         }
       } catch (err) {
-        console.error("Submission Error:", err);
         showLocalError(
           err.message === "Failed to fetch"
             ? "Connection error. Please check your internet."
@@ -237,19 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof turnstile !== "undefined") turnstile.reset();
       }
     });
-    function showError(msg) {
-      if (els.authError) {
-        els.authError.textContent = msg;
-        els.authError.style.display = "block";
-        if (typeof gsap !== "undefined") {
-          gsap.fromTo(
-            els.authError,
-            { y: -10, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.3 },
-          );
-        }
-      }
-    }
+    
     function handleSuccess(name) {
       const formEl = document.getElementById("enrollForm");
       const successEl = document.getElementById("enrollSuccess");
@@ -279,10 +352,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   }
+
   function setupExportButtons() {
     if (els.exportCSV) els.exportCSV.addEventListener("click", exportToCSV);
-    if (els.exportExcel)
-      els.exportExcel.addEventListener("click", exportToExcel);
+    if (els.exportExcel) els.exportExcel.addEventListener("click", exportToExcel);
     if (els.exportPDF) els.exportPDF.addEventListener("click", exportToPDF);
     if (els.txFilter) {
       els.txFilter.addEventListener("change", (e) => {
@@ -304,6 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+
   function exportToCSV() {
     if (currentTransactions.length === 0) {
       alert("No transaction data to export.");
@@ -330,6 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   }
+
   function exportToExcel() {
     if (currentTransactions.length === 0) {
       alert("No transaction data to export.");
@@ -353,12 +428,12 @@ document.addEventListener("DOMContentLoaded", () => {
       `optiline-transactions-${new Date().toISOString().split("T")[0]}.xlsx`,
     );
   }
+
   function exportToPDF() {
     if (currentTransactions.length === 0) {
       alert("No transaction data to export.");
       return;
     }
-
     const getLogoData = () => {
       const img = document.querySelector(".logo img");
       if (!img) return null;
@@ -369,16 +444,13 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.drawImage(img, 0, 0);
       return canvas.toDataURL("image/png");
     };
-
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const partnerName = els.pName ? els.pName.textContent : "Partner";
     const logoData = getLogoData();
     const dateStr = new Date().toLocaleDateString();
-
     doc.setFillColor(18, 8, 47);
     doc.rect(0, 0, 210, 40, "F");
-
     if (logoData) {
       doc.addImage(logoData, "PNG", 14, 8, 45, 8 * (45 / 45));
     } else {
@@ -386,18 +458,15 @@ document.addEventListener("DOMContentLoaded", () => {
       doc.setTextColor(255, 255, 255);
       doc.text("OPTILINE", 14, 25);
     }
-
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(164, 94, 255);
     doc.text("OFFICIAL COMMISSION STATEMENT", 140, 18);
-
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(200, 200, 200);
     doc.text(`Generated: ${dateStr}`, 140, 24);
     doc.text(`Partner: ${partnerName}`, 140, 29);
-
     let y = 65;
     doc.setFontSize(14);
     doc.setTextColor(0, 0, 0);
@@ -440,7 +509,6 @@ document.addEventListener("DOMContentLoaded", () => {
         y = 20;
       }
     });
-
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -454,11 +522,9 @@ document.addEventListener("DOMContentLoaded", () => {
         align: "center",
       });
     }
-
-    doc.save(
-      `OPTILINE_Report_${partnerName.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`,
-    );
+    doc.save(`OPTILINE_Report_${partnerName.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`);
   }
+
   function attemptLogin() {
     const id = els.pid.value.trim();
     const pass = els.ppass.value.trim();
@@ -468,7 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     els.authBtn.disabled = true;
     els.authBtn.querySelector(".btn-txt").textContent = "Authenticating...";
-    els.authError.style.display = "none";
+    if(els.authError) els.authError.style.display = "none";
     fetch(API_URL, {
       method: "POST",
       body: JSON.stringify({
@@ -480,49 +546,50 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "success") {
+          localStorage.setItem(SESSION_KEY, JSON.stringify({
+            data: data.data,
+            lastActivity: Date.now()
+          }));
           loadDashboard(data.data);
         } else {
           showError(
-            data.message ||
-              "Invalid credentials. Please check your Partner ID and Access Key.",
+            data.message || "Invalid credentials. Please check your Partner ID and Access Key."
           );
           resetBtn();
         }
       })
       .catch((err) => {
-        console.error("Login API Error:", err);
-        showError(
-          "Connection failed. Please check your internet or try again later.",
-        );
+        showError("Connection failed. Please check your internet or try again later.");
         resetBtn();
       });
   }
+
   function showError(msg) {
-    els.authError.textContent = msg;
-    els.authError.style.display = "block";
-    if (typeof gsap !== "undefined") {
-      gsap.from(els.authError, { y: -10, opacity: 0, duration: 0.3 });
+    if(els.authError) {
+      els.authError.textContent = msg;
+      els.authError.style.display = "block";
+      if (typeof gsap !== "undefined") {
+        gsap.from(els.authError, { y: -10, opacity: 0, duration: 0.3 });
+      }
     }
   }
+
   function resetBtn() {
-    els.authBtn.disabled = false;
-    els.authBtn.querySelector(".btn-txt").textContent = "Access Dashboard";
+    if(els.authBtn) {
+      els.authBtn.disabled = false;
+      els.authBtn.querySelector(".btn-txt").textContent = "Access Dashboard";
+    }
   }
-  function animateVal(element, finalValue, prefix = "", duration = 2.5) {
+
+  function animateVal(element, finalValue, prefix = "", duration = 2) {
+    if (!element) return;
     if (typeof gsap === "undefined") {
       element.textContent = prefix + finalValue.toLocaleString();
       return;
     }
-    if (typeof ScrollTrigger !== "undefined") {
-      gsap.registerPlugin(ScrollTrigger);
-    }
     element.textContent = prefix + "0";
     const obj = { val: 0 };
     gsap.to(obj, {
-      scrollTrigger: {
-        trigger: element,
-        start: "top 95%",
-      },
       val: finalValue,
       duration: duration,
       ease: "power2.out",
@@ -534,17 +601,13 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
   }
-  function loadDashboard(data) {
-    els.pName.textContent = data.partnerId || "Partner";
-    els.refLink.textContent = `${window.location.origin}/?ref=${data.partnerId}`;
+
+  function loadDashboard(data, isRefresh = false) {
+    if(els.pName) els.pName.textContent = data.partnerId || "Partner";
+    if(els.refLink) els.refLink.textContent = `${window.location.origin}/?ref=${data.partnerId}`;
     currentTransactions = data.transactions || [];
-    const paidTransactions = currentTransactions.filter(
-      (tx) => tx.status === "Paid",
-    );
-    const totalComm = paidTransactions.reduce(
-      (sum, tx) => sum + (parseFloat(tx.commission) || 0),
-      0,
-    );
+    const paidTransactions = currentTransactions.filter((tx) => tx.status === "Paid");
+    const totalComm = paidTransactions.reduce((sum, tx) => sum + (parseFloat(tx.commission) || 0), 0);
     const totalSales = currentTransactions.length;
     animateVal(els.valComm, totalComm, "$");
     animateVal(els.valSales, totalSales, "");
@@ -553,10 +616,19 @@ document.addEventListener("DOMContentLoaded", () => {
     updateMilestones(totalComm);
     initializeTipSystem();
     setupExportButtons();
-    initializePartnersForm();
     initSmartLinkBuilder();
     initOrganicFeed();
     updateAIInsights(currentTransactions);
+    
+    document.documentElement.classList.add('is-logged-in');
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    
+    if (isRefresh) {
+      if(els.loginStage) els.loginStage.classList.remove("active");
+      if(els.dashStage) els.dashStage.classList.remove("hidden");
+      return;
+    }
+
     if (typeof gsap !== "undefined") {
       const tl = gsap.timeline();
       tl.to(els.loginStage, {
@@ -565,12 +637,9 @@ document.addEventListener("DOMContentLoaded", () => {
         duration: 0.5,
         ease: "power2.in",
         onComplete: () => {
-          els.loginStage.classList.remove("active");
-          els.dashStage.classList.remove("hidden");
-          document.documentElement.style.scrollBehavior = 'auto';
-          window.scrollTo(0, 0);
-          els.dashStage.classList.add("active");
-          setTimeout(() => { document.documentElement.style.scrollBehavior = 'smooth'; }, 100);
+          if(els.loginStage) els.loginStage.classList.remove("active");
+          if(els.dashStage) els.dashStage.classList.remove("hidden");
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         },
       }).fromTo(
         ".anim-dash",
@@ -584,12 +653,15 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       );
     } else {
-      els.loginStage.classList.remove("active");
-      els.dashStage.classList.remove("hidden");
-      window.scrollTo(0, 0);
-      els.dashStage.classList.add("active");
+      if(els.loginStage) els.loginStage.classList.remove("active");
+      if(els.dashStage) {
+        els.dashStage.classList.remove("hidden");
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        els.dashStage.classList.add("active");
+      }
     }
   }
+
   function renderTable(txs) {
     const tableBody = els.tableBody;
     if (!tableBody) return;
@@ -615,8 +687,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let statusStyle = "color:#F59E0B; background:rgba(245,158,11,0.1);";
       let statusText = tx.status;
       if (tx.status === "Completed" || tx.status === "Paid") {
-        statusStyle =
-          "color:#10B981; background:rgba(16,185,129,0.1); font-weight:600;";
+        statusStyle = "color:#10B981; background:rgba(16,185,129,0.1); font-weight:600;";
         statusText = "Paid";
       } else if (tx.status === "Pending") {
         statusText = "Pending";
@@ -631,6 +702,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tableBody.appendChild(tr);
     });
   }
+
   function updateCharts(txs) {
     const packageCounts = {};
     const earningsByDate = {};
@@ -639,8 +711,7 @@ document.addEventListener("DOMContentLoaded", () => {
       packageCounts[pkg] = (packageCounts[pkg] || 0) + 1;
       const date = tx.date ? tx.date.split("T")[0] : "N/A";
       if (date !== "N/A") {
-        earningsByDate[date] =
-          (earningsByDate[date] || 0) + (parseFloat(tx.commission) || 0);
+        earningsByDate[date] = (earningsByDate[date] || 0) + (parseFloat(tx.commission) || 0);
       }
     });
 
@@ -709,8 +780,7 @@ document.addEventListener("DOMContentLoaded", () => {
               borderColor: "rgba(138, 43, 226, 0.3)",
               borderWidth: 1,
               callbacks: {
-                label: (context) =>
-                  ` ${context.label}: ${context.parsed} sales`,
+                label: (context) => ` ${context.label}: ${context.parsed} sales`,
               },
             },
           },
@@ -731,9 +801,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tBg = "rgba(255, 255, 255, 0.03)";
         tBorder = "rgba(255, 255, 255, 0.05)";
       } else {
-        const sortedDates = Object.keys(earningsByDate)
-          .filter((d) => d !== "N/A")
-          .sort();
+        const sortedDates = Object.keys(earningsByDate).filter((d) => d !== "N/A").sort();
         tLabels = sortedDates;
         tData = sortedDates.map((d) => earningsByDate[d]);
         tBg = "rgba(164, 94, 255, 0.7)";
@@ -766,9 +834,7 @@ document.addEventListener("DOMContentLoaded", () => {
               grid: { color: "rgba(255, 255, 255, 0.05)", drawBorder: false },
               ticks: {
                 color: "#C0C0D0",
-                callback: function (value) {
-                  return "$" + value;
-                },
+                callback: function (value) { return "$" + value; },
               },
             },
             x: {
@@ -782,9 +848,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
           },
           plugins: {
-            legend: {
-              display: false,
-            },
+            legend: { display: false },
             tooltip: {
               enabled: !isDummy,
               backgroundColor: "rgba(10, 10, 26, 0.9)",
@@ -793,9 +857,7 @@ document.addEventListener("DOMContentLoaded", () => {
               borderColor: "rgba(138, 43, 226, 0.3)",
               borderWidth: 1,
               callbacks: {
-                label: function (context) {
-                  return `Earnings: $${context.parsed.y}`;
-                },
+                label: function (context) { return `Earnings: $${context.parsed.y}`; },
               },
             },
           },
@@ -803,6 +865,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+
   function updateMilestones(totalComm) {
     if (typeof gsap === "undefined") return;
     els.milestoneCards.forEach((card) => {
@@ -810,15 +873,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const progress = Math.min(100, (totalComm / target) * 100);
       const fillElement = card.querySelector(".m-fill");
       const currentValElement = card.querySelector(".m-current-val");
-      gsap.to(fillElement, {
-        width: `${progress}%`,
-        duration: 1.5,
-        ease: "power2.out",
-      });
-      const startVal =
-        parseFloat(
-          currentValElement.textContent.replace("$", "").replace(/,/g, ""),
-        ) || 0;
+      gsap.to(fillElement, { width: `${progress}%`, duration: 1.5, ease: "power2.out" });
+      const startVal = parseFloat(currentValElement.textContent.replace("$", "").replace(/,/g, "")) || 0;
       const finalVal = Math.min(totalComm, target);
       gsap.to(
         { value: startVal },
@@ -826,23 +882,14 @@ document.addEventListener("DOMContentLoaded", () => {
           value: finalVal,
           duration: 1.5,
           ease: "power2.out",
-          onUpdate: function () {
-            currentValElement.textContent = `$${Math.floor(this.vars.value).toLocaleString()}`;
-          },
-          onComplete: function () {
-            currentValElement.textContent = `$${finalVal.toLocaleString()}`;
-          },
-        },
+          onUpdate: function () { currentValElement.textContent = `$${Math.floor(this.vars.value).toLocaleString()}`; },
+          onComplete: function () { currentValElement.textContent = `$${finalVal.toLocaleString()}`; },
+        }
       );
       if (totalComm >= target) {
         card.classList.remove("locked");
         card.classList.add("unlocked");
-        gsap.to(card, {
-          scale: 1.02,
-          duration: 0.5,
-          ease: "back.out(1.7)",
-          boxShadow: "0 0 30px rgba(138, 43, 226, 0.4)",
-        });
+        gsap.to(card, { scale: 1.02, duration: 0.5, ease: "back.out(1.7)", boxShadow: "0 0 30px rgba(138, 43, 226, 0.4)" });
       } else {
         card.classList.remove("unlocked");
         card.classList.add("locked");
@@ -850,97 +897,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-  function initializePartnersForm() {
-    const form = document.getElementById("partnerForm");
-    const formSection = document.getElementById("partnerFormSection");
-    const successMessage = document.getElementById("formSuccessMessage");
-    const errorMessage = document.getElementById("formErrorMessage");
-    const WEBHOOK_URL = ENROLL_WEBHOOK;
-    if (!form) return;
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const submitBtn = form.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      submitBtn.disabled = true;
-      submitBtn.innerHTML =
-        '<i class="fas fa-spinner fa-spin"></i> Processing...';
-      errorMessage.style.display = "none";
-      const formData = {
-        name: document.getElementById("partnerName").value.trim(),
-        email: document.getElementById("partnerEmail").value.trim(),
-        phone: document.getElementById("partnerPhone").value.trim(),
-        social: document.getElementById("partnerSocial") ? document.getElementById("partnerSocial").value.trim() : "",
-        message: document.getElementById("partnerMessage").value.trim(),
-      };
-      if (!formData.name || !formData.email || !formData.phone || !formData.social || !formData.message) {
-        showFormError("Please fill in all required fields.");
-        resetSubmitButton(submitBtn, originalText);
-        return;
-      }
-      if (!validateEmail(formData.email)) {
-        showFormError("Please enter a valid email address.");
-        resetSubmitButton(submitBtn, originalText);
-        return;
-      }
-      if (!/^https?:\/\/.+/i.test(formData.social)) {
-        showFormError("Please enter a valid URL starting with http:// or https://");
-        resetSubmitButton(submitBtn, originalText);
-        return;
-      }
-      try {
-        const response = await fetch(WEBHOOK_URL, {
-          method: "POST",
-          body: new URLSearchParams(formData),
-        });
-        const result = await response.json();
-        if (result.result === "success") {
-          showSuccess(formData.name);
-          form.reset();
-        } else {
-          showFormError(
-            result.message || "Submission failed. Please try again.",
-          );
-        }
-      } catch (error) {
-        console.error("Form submission error:", error);
-        showFormError(
-          "Network error. Please check your connection and try again.",
-        );
-      } finally {
-        resetSubmitButton(submitBtn, originalText);
-      }
-    });
-    function validateEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(email);
-    }
-    function showFormError(message) {
-      errorMessage.textContent = message;
-      errorMessage.style.display = "block";
-      if (typeof gsap !== "undefined") {
-        gsap.from(errorMessage, { y: -10, opacity: 0, duration: 0.3 });
-      }
-    }
-    function showSuccess(userName) {
-      if (formSection && successMessage) {
-        formSection.style.display = "none";
-        successMessage.style.display = "block";
-        successMessage.querySelector(".user-name").textContent = userName;
-        if (typeof gsap !== "undefined") {
-          gsap.from(successMessage, {
-            opacity: 0,
-            y: 20,
-            duration: 0.6,
-            ease: "power2.out",
-          });
-        }
-      }
-    }
-    function resetSubmitButton(btn, originalText) {
-      btn.disabled = false;
-      btn.innerHTML = originalText;
-    }
-  }
+
   function initSmartLinkBuilder() {
     if (els.generateLinkBtn) {
       els.generateLinkBtn.addEventListener("click", () => {
@@ -952,9 +909,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           try {
             const refText = els.refLink.textContent;
-            if (refText.includes("=")) {
-              partnerId = refText.split("=")[1];
-            }
+            if (refText.includes("=")) partnerId = refText.split("=")[1];
           } catch (e) {}
         }
         let finalUrl = `${baseUrl}?ref=${partnerId}`;
@@ -962,13 +917,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (els.smartLinkOutput && els.resultContainer) {
           els.smartLinkOutput.textContent = finalUrl;
           els.resultContainer.style.display = "block";
-          if (typeof gsap !== "undefined") {
-            gsap.from(els.resultContainer, {
-              y: -10,
-              opacity: 0,
-              duration: 0.4,
-            });
-          }
+          if (typeof gsap !== "undefined") gsap.from(els.resultContainer, { y: -10, opacity: 0, duration: 0.4 });
         }
       });
     }
@@ -989,92 +938,22 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+
   function initOrganicFeed() {
     if (!els.feedTrack) return;
-    const firstNames = [
-      "James",
-      "Mary",
-      "Robert",
-      "Patricia",
-      "John",
-      "Jennifer",
-      "Michael",
-      "Linda",
-      "David",
-      "Elizabeth",
-      "William",
-      "Barbara",
-      "Richard",
-      "Susan",
-      "Joseph",
-      "Jessica",
-      "Thomas",
-      "Sarah",
-      "Charles",
-      "Karen",
-      "Christopher",
-      "Lisa",
-      "Daniel",
-      "Nancy",
-    ];
-    const lastInitials = [
-      "H.",
-      "S.",
-      "B.",
-      "M.",
-      "W.",
-      "K.",
-      "C.",
-      "P.",
-      "R.",
-      "D.",
-    ];
-    const locations = [
-      "North America",
-      "Europe",
-      "Asia Pacific",
-      "Western Europe",
-      "South America",
-      "Australia",
-      "Eastern Europe",
-      "Northern America",
-    ];
+    const firstNames = ["James", "Mary", "Robert", "Patricia", "John", "Jennifer", "Michael", "Linda", "David", "Elizabeth", "William", "Barbara", "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Sarah", "Charles", "Karen", "Christopher", "Lisa", "Daniel", "Nancy"];
+    const lastInitials = ["H.", "S.", "B.", "M.", "W.", "K.", "C.", "P.", "R.", "D."];
+    const locations = ["North America", "Europe", "Asia Pacific", "Western Europe", "South America", "Australia", "Eastern Europe", "Northern America"];
     const actions = [
-      {
-        type: "sale",
-        text: "generated a new commission",
-        amount: "$100",
-        icon: "fa-dollar-sign",
-      },
-      {
-        type: "sale",
-        text: "generated a new commission",
-        amount: "$150",
-        icon: "fa-dollar-sign",
-      },
-      {
-        type: "sale",
-        text: "generated a new commission",
-        amount: "$200",
-        icon: "fa-dollar-sign",
-      },
-      {
-        type: "join",
-        text: "joined the partner network",
-        amount: "",
-        icon: "fa-user-plus",
-      },
-      {
-        type: "milestone",
-        text: "reached Silver Status",
-        amount: "",
-        icon: "fa-trophy",
-      },
+      { type: "sale", text: "generated a new commission", amount: "$100", icon: "fa-dollar-sign" },
+      { type: "sale", text: "generated a new commission", amount: "$150", icon: "fa-dollar-sign" },
+      { type: "sale", text: "generated a new commission", amount: "$200", icon: "fa-dollar-sign" },
+      { type: "join", text: "joined the partner network", amount: "", icon: "fa-user-plus" },
+      { type: "milestone", text: "reached Silver Status", amount: "", icon: "fa-trophy" },
     ];
     function createFeedItem() {
       const fName = firstNames[Math.floor(Math.random() * firstNames.length)];
-      const lInit =
-        lastInitials[Math.floor(Math.random() * lastInitials.length)];
+      const lInit = lastInitials[Math.floor(Math.random() * lastInitials.length)];
       const fullName = `${fName} ${lInit}`;
       const action = actions[Math.floor(Math.random() * actions.length)];
       const loc = locations[Math.floor(Math.random() * locations.length)];
@@ -1117,6 +996,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(createFeedItem, 2000);
     organicLoop();
   }
+
   function updateAIInsights(txs) {
     const aiForecast = document.getElementById("aiForecast");
     const aiVelocity = document.getElementById("aiVelocity");
@@ -1127,40 +1007,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (txs.length === 0) {
       aiForecast.innerHTML = '<span style="color: #444;">$0.00</span>';
       aiVelocity.innerHTML = '<span style="color: #444;">0%</span>';
-      if (aiVelocityText) {
-        aiVelocityText.textContent = "System Standby";
-        aiVelocityText.style.color = "#555";
-      }
-      if (aiAdvice) {
-        aiAdvice.textContent =
-          "System active. Waiting for initial transaction data to generate predictive strategy.";
-        aiAdvice.style.color = "#777";
-        aiAdvice.style.fontStyle = "italic";
-      }
+      if (aiVelocityText) { aiVelocityText.textContent = "System Standby"; aiVelocityText.style.color = "#555"; }
+      if (aiAdvice) { aiAdvice.textContent = "System active. Waiting for initial transaction data to generate predictive strategy."; aiAdvice.style.color = "#777"; aiAdvice.style.fontStyle = "italic"; }
       return;
     }
 
-    const totalComm = txs.reduce(
-      (sum, tx) => sum + (parseFloat(tx.commission) || 0),
-      0,
-    );
+    const totalComm = txs.reduce((sum, tx) => sum + (parseFloat(tx.commission) || 0), 0);
     const date = new Date();
     const dayOfMonth = date.getDate();
-    const daysInMonth = new Date(
-      date.getFullYear(),
-      date.getMonth() + 1,
-      0,
-    ).getDate();
+    const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
     let projected = 0;
-    if (totalComm > 0 && dayOfMonth > 0) {
-      projected = (totalComm / dayOfMonth) * daysInMonth;
-    }
+    if (totalComm > 0 && dayOfMonth > 0) projected = (totalComm / dayOfMonth) * daysInMonth;
+    
     animateVal(aiForecast, Math.floor(projected), "$");
     let velocityScore = 0;
     let velocityMsg = "Gathering more data...";
     if (txs.length >= 2) {
-      const recentAvg =
-        (parseFloat(txs[0].commission) + parseFloat(txs[1].commission)) / 2;
+      const recentAvg = (parseFloat(txs[0].commission) + parseFloat(txs[1].commission)) / 2;
       const overallAvg = totalComm / txs.length;
       const change = ((recentAvg - overallAvg) / overallAvg) * 100;
       velocityScore = Math.floor(change);
@@ -1175,23 +1038,19 @@ document.addEventListener("DOMContentLoaded", () => {
       velocityScore = 0;
       velocityMsg = "Gathering data...";
     }
-    aiVelocity.textContent =
-      (velocityScore > 0 ? "+" : "") + velocityScore + "%";
+    aiVelocity.textContent = (velocityScore > 0 ? "+" : "") + velocityScore + "%";
     if (aiVelocityText) aiVelocityText.textContent = velocityMsg;
+    
     let advice = "";
     const matrixCount = txs.filter((t) => t.package === "Matrix").length;
     if (matrixCount === 0 && txs.length > 3) {
-      advice =
-        "Detected high volume of basic tiers. OPPORTUNITY: Upsell 'Matrix' package to increase margins by 40%. Target senior clients.";
+      advice = "Detected high volume of basic tiers. OPPORTUNITY: Upsell 'Matrix' package to increase margins by 40%. Target senior clients.";
     } else if (velocityScore < -10) {
-      advice =
-        "Velocity drop detected. Engagement metrics are cooling. Suggested action: Refresh your creative assets or re-post high-performing content.";
+      advice = "Velocity drop detected. Engagement metrics are cooling. Suggested action: Refresh your creative assets or re-post high-performing content.";
     } else if (projected > 5000) {
-      advice =
-        "Excellent momentum! You are on track to hit 'Gold Tier' this month. Maintain current consistency to unlock the bonus multiplier.";
+      advice = "Excellent momentum! You are on track to hit 'Gold Tier' this month. Maintain current consistency to unlock the bonus multiplier.";
     } else {
-      advice =
-        "Traffic quality is stable. Analyzing conversion rates... Suggest focusing on 'Nexus' package for optimal conversion-to-revenue ratio.";
+      advice = "Traffic quality is stable. Analyzing conversion rates... Suggest focusing on 'Nexus' package for optimal conversion-to-revenue ratio.";
     }
     if (aiAdvice) {
       aiAdvice.textContent = "";
@@ -1206,7 +1065,9 @@ document.addEventListener("DOMContentLoaded", () => {
       typeWriter();
     }
   }
+
 });
+
 const messageInput = document.getElementById("partnerMessage");
 const strengthBar = document.getElementById("msgStrengthBar");
 const strengthText = document.getElementById("msgStrengthText");
@@ -1216,47 +1077,26 @@ if (messageInput && strengthBar) {
     let width = "0%",
       color = "#ff4d4d",
       txt = "Too short";
-    if (val > 20) {
-      width = "40%";
-      color = "#F59E0B";
-      txt = "Weak";
-    }
-    if (val > 50) {
-      width = "70%";
-      color = "#6366F1";
-      txt = "Good";
-    }
-    if (val > 100) {
-      width = "100%";
-      color = "#10B981";
-      txt = "Strong!";
-    }
+    if (val > 20) { width = "40%"; color = "#F59E0B"; txt = "Weak"; }
+    if (val > 50) { width = "70%"; color = "#6366F1"; txt = "Good"; }
+    if (val > 100) { width = "100%"; color = "#10B981"; txt = "Strong!"; }
     strengthBar.style.width = width;
     strengthBar.style.background = color;
     strengthText.textContent = "Message strength: " + txt;
   });
 }
-const inputsToSave = [
-  "partnerName",
-  "partnerPhone",
-  "partnerEmail",
-  "partnerSocial",
-  "partnerMessage",
-];
+
+const inputsToSave = ["partnerName", "partnerPhone", "partnerEmail", "partnerSocial", "partnerMessage"];
 inputsToSave.forEach((id) => {
   const savedVal = localStorage.getItem(id);
-  if (savedVal && document.getElementById(id)) {
-    document.getElementById(id).value = savedVal;
-  }
+  if (savedVal && document.getElementById(id)) document.getElementById(id).value = savedVal;
 });
+
 inputsToSave.forEach((id) => {
   const el = document.getElementById(id);
-  if (el) {
-    el.addEventListener("input", () => {
-      localStorage.setItem(id, el.value);
-    });
-  }
+  if (el) el.addEventListener("input", () => localStorage.setItem(id, el.value));
 });
+
 document.addEventListener("DOMContentLoaded", function () {
   const toggleBtn = document.getElementById("policyToggle");
   const closeBtn = document.getElementById("closePolicyBtn");
@@ -1266,11 +1106,7 @@ document.addEventListener("DOMContentLoaded", function () {
     toggleBtn.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
-      if (section.classList.contains("active")) {
-        section.classList.remove("active");
-      } else {
-        section.classList.add("active");
-      }
+      section.classList.toggle("active");
     };
   }
 
@@ -1282,15 +1118,12 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(function () {
         const headerOffset = 100;
         const elementPosition = section.getBoundingClientRect().top;
-        const offsetPosition =
-          elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth",
-        });
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
       }, 600);
     };
   }
+
   const secureBtns = document.querySelectorAll('.secure-dl-btn');
   secureBtns.forEach(btn => {
     btn.dataset.originalHtml = btn.innerHTML;
@@ -1298,26 +1131,19 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!this.classList.contains('confirm-ready')) {
         e.preventDefault();
         this.classList.add('confirm-ready');
-        
         gsap.to(this, {
-          scale: 0.92,
-          opacity: 0.7,
-          duration: 0.1,
+          scale: 0.92, opacity: 0.7, duration: 0.1,
           onComplete: () => {
             this.innerHTML = '<i class="fas fa-check-double"></i> Click Again';
             this.style.background = '#5a189a';
             gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
           }
         });
-
         clearTimeout(this.resetTimer);
         this.resetTimer = setTimeout(() => {
           this.classList.remove('confirm-ready');
-          
           gsap.to(this, {
-            scale: 0.92,
-            opacity: 0.7,
-            duration: 0.1,
+            scale: 0.92, opacity: 0.7, duration: 0.1,
             onComplete: () => {
               this.innerHTML = this.dataset.originalHtml;
               this.style.background = '';
