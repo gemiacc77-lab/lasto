@@ -190,3 +190,29 @@
   50% { transform: scale(1.15); filter: drop-shadow(0 0 25px rgba(138, 43, 226, 0.7)); }
   100% { transform: scale(1); }
 }
+.input-wrapper {
+  position: relative;
+}
+
+.auth-subtitle {
+  margin-bottom: 2rem !important;
+}
+
+.input-wrapper {
+  position: relative;
+}
+.input-wrapper .toggle-password {
+  position: absolute !important;
+  right: 18px !important;
+  left: auto !important; 
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  cursor: pointer;
+  color: var(--text-gray);
+  transition: color 0.3s ease;
+  z-index: 10;
+  pointer-events: auto;
+}
+.input-wrapper .toggle-password:hover {
+  color: var(--accent-light);
+}
