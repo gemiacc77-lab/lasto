@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     smartLinkOutput: document.getElementById("smartLinkOutput"),
     resultContainer: document.getElementById("resultContainer"),
     feedTrack: document.getElementById("feedTrack"),
+    withdrawalTableBody: document.getElementById("withdrawalTableBody"),
   };
 
   const tips = [
@@ -107,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let charts = { package: null, trend: null };
   let currentTipIndex = 0;
   let currentTransactions = [];
+  let currentWithdrawals = [];
 
   const activeSession = localStorage.getItem(SESSION_KEY);
   if (activeSession && document.documentElement.classList.contains('is-logged-in')) {
@@ -169,17 +171,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!els.tipText) return;
     if (typeof gsap !== "undefined") {
       gsap.to(els.tipText, {
-        opacity: 0,
-        y: 20,
-        duration: 0.3,
+        opacity: 0, y: 20, duration: 0.3,
         onComplete: () => {
           els.tipText.textContent = tips[currentTipIndex];
-          gsap.to(els.tipText, {
-            opacity: 1,
-            y: 0,
-            duration: 0.5,
-            ease: "power2.out",
-          });
+          gsap.to(els.tipText, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
         },
       });
     } else {
@@ -192,13 +187,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (progressBar) {
       const progress = ((currentTipIndex + 1) / tips.length) * 100;
       if (typeof gsap !== "undefined") {
-        gsap.to(progressBar, {
-          width: `${progress}%`,
-          duration: 0.5,
-          ease: "power2.out",
-        });
+        gsap.to(progressBar, { width: `${progress}%`, duration: 0.5, ease: "power2.out" });
       } else {
-          progressBar.style.width = `${progress}%`;
+        progressBar.style.width = `${progress}%`;
       }
     }
   }
@@ -274,15 +265,9 @@ document.addEventListener("DOMContentLoaded", () => {
           feedbackEl.style.display = "block";
           feedbackEl.className = "form-feedback error-msg";
           if (typeof gsap !== "undefined") {
-            gsap.fromTo(
-              feedbackEl,
-              { y: -10, opacity: 0 },
-              { y: 0, opacity: 1, duration: 0.3 },
-            );
+            gsap.fromTo(feedbackEl, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
           }
-        } else {
-          alert(msg);
-        }
+        } else { alert(msg); }
       }
       if (!phoneInput.value.startsWith("+")) {
         showLocalError("Phone number must start with country code (e.g. +966...).");
@@ -307,17 +292,10 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.disabled = true;
       submitBtn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin"></i>';
       const data = new URLSearchParams();
-      for (const pair of formData) {
-        data.append(pair[0], pair[1]);
-      }
-      if (!data.has("cf-turnstile-response")) {
-        data.append("cf-turnstile-response", turnstileToken);
-      }
+      for (const pair of formData) { data.append(pair[0], pair[1]); }
+      if (!data.has("cf-turnstile-response")) { data.append("cf-turnstile-response", turnstileToken); }
       try {
-        const response = await fetch(ENROLL_WEBHOOK, {
-          method: "POST",
-          body: data,
-        });
+        const response = await fetch(ENROLL_WEBHOOK, { method: "POST", body: data });
         const result = await response.json();
         if (result.status === "success" || result.result === "success") {
           if (typeof turnstile !== "undefined") turnstile.reset();
@@ -331,11 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error(result.message || "Submission failed");
         }
       } catch (err) {
-        showLocalError(
-          err.message === "Failed to fetch"
-            ? "Connection error. Please check your internet."
-            : err.message,
-        );
+        showLocalError(err.message === "Failed to fetch" ? "Connection error. Please check your internet." : err.message);
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
         if (typeof turnstile !== "undefined") turnstile.reset();
@@ -348,20 +322,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const successNameEl = document.getElementById("successName");
       if (typeof gsap !== "undefined") {
         gsap.to(formEl, {
-          opacity: 0,
-          height: 0,
-          margin: 0,
-          padding: 0,
-          duration: 0.5,
+          opacity: 0, height: 0, margin: 0, padding: 0, duration: 0.5,
           onComplete: () => {
             formEl.style.display = "none";
             successEl.style.display = "block";
             if (successNameEl) successNameEl.textContent = name;
-            gsap.fromTo(
-              successEl,
-              { opacity: 0, y: 20 },
-              { opacity: 1, y: 0, duration: 0.5 },
-            );
+            gsap.fromTo(successEl, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
           },
         });
       } else {
@@ -405,11 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let csvContent = "Date,Package,Ref ID,Commission,Status\n";
     currentTransactions.forEach((tx) => {
       const row = [
-        tx.date || "N/A",
-        tx.package || "N/A",
-        tx.ref || "-",
-        `$${tx.commission || "0"}`,
-        tx.status || "Completed",
+        tx.date || "N/A", tx.package || "N/A", tx.ref || "-", `$${tx.commission || "0"}`, tx.status || "Completed",
       ];
       csvContent += row.map((field) => `"${field}"`).join(",") + "\n";
     });
@@ -433,24 +395,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const wsData = [
       ["Date", "Package", "Ref ID", "Commission", "Status"],
       ...currentTransactions.map((tx) => [
-        tx.date || "N/A",
-        tx.package || "N/A",
-        tx.ref || "-",
-        parseFloat(tx.commission) || 0,
-        tx.status || "Completed",
+        tx.date || "N/A", tx.package || "N/A", tx.ref || "-", parseFloat(tx.commission) || 0, tx.status || "Completed",
       ]),
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Transactions");
-    XLSX.writeFile(
-      wb,
-      `optiline-transactions-${new Date().toISOString().split("T")[0]}.xlsx`,
-    );
+    XLSX.writeFile(wb, `optiline-transactions-${new Date().toISOString().split("T")[0]}.xlsx`);
   }
 
   function exportToPDF() {
-    if (currentTransactions.length === 0) {
-      alert("No transaction data to export.");
+    if (currentTransactions.length === 0 && currentWithdrawals.length === 0) {
+      alert("No data available to export.");
       return;
     }
     const getLogoData = () => {
@@ -468,10 +423,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const partnerName = els.pName ? els.pName.textContent : "Partner";
     const logoData = getLogoData();
     const dateStr = new Date().toLocaleDateString();
+    
     doc.setFillColor(18, 8, 47);
     doc.rect(0, 0, 210, 40, "F");
     if (logoData) {
-      doc.addImage(logoData, "PNG", 14, 8, 45, 8 * (45 / 45));
+      doc.addImage(logoData, "PNG", 14, 15, 45, 8 * (45 / 45));
     } else {
       doc.setFontSize(22);
       doc.setTextColor(255, 255, 255);
@@ -486,13 +442,18 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setTextColor(200, 200, 200);
     doc.text(`Generated: ${dateStr}`, 140, 24);
     doc.text(`Partner: ${partnerName}`, 140, 29);
-    let y = 65;
+    
+    let y = 60;
+    
     doc.setFontSize(14);
     doc.setTextColor(0, 0, 0);
-    doc.text("Transaction History", 14, 48);
+    doc.text("Transaction History", 14, y);
+    y += 5;
     doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.5);
-    doc.line(14, 52, 196, 52);
+    doc.line(14, y, 196, y);
+    y += 12; 
+    
     doc.setFillColor(230, 230, 235);
     doc.rect(14, y - 6, 182, 10, "F");
     doc.setFontSize(9);
@@ -505,41 +466,80 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.text("STATUS", 170, y);
     y += 12;
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(0, 0, 0);
-    currentTransactions.forEach((tx, index) => {
-      if (index % 2 === 0) {
-        doc.setFillColor(240, 240, 245);
-        doc.rect(14, y - 6, 182, 8, "F");
-      }
-      doc.setFontSize(9);
-      doc.text(tx.date || "-", 18, y);
-      doc.setFont("helvetica", "bold");
-      doc.text(tx.package || "-", 50, y);
-      doc.setFont("helvetica", "normal");
-      doc.text(tx.ref || "-", 90, y);
-      doc.setTextColor(0, 0, 0);
-      doc.text(`$${tx.commission}`, 140, y);
-      doc.setTextColor(0, 0, 0);
-      let status = tx.status || "Completed";
-      doc.text(status, 170, y);
-      y += 8;
-      if (y > 270) {
-        doc.addPage();
-        y = 20;
-      }
-    });
+    
+    if (currentTransactions.length === 0) {
+      doc.text("No transactions recorded.", 18, y);
+      y += 10;
+    } else {
+      currentTransactions.forEach((tx, index) => {
+        if (index % 2 === 0) {
+          doc.setFillColor(240, 240, 245);
+          doc.rect(14, y - 6, 182, 8, "F");
+        }
+        doc.setFontSize(9);
+        doc.text(tx.date || "-", 18, y);
+        doc.setFont("helvetica", "bold");
+        doc.text(tx.package || "-", 50, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(tx.ref || "-", 90, y);
+        doc.text(`$${tx.commission}`, 140, y);
+        doc.text(tx.status || "Completed", 170, y);
+        y += 8;
+        if (y > 270) { doc.addPage(); y = 20; }
+      });
+    }
+
+    if (y > 240) { doc.addPage(); y = 20; }
+    else { y += 20; } 
+    
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Withdrawal History", 14, y);
+    y += 5;
+    doc.setLineWidth(0.5);
+    doc.line(14, y, 196, y);
+    y += 12; 
+    
+    doc.setFillColor(230, 230, 235);
+    doc.rect(14, y - 6, 182, 10, "F");
+    doc.setFontSize(9);
+    doc.text("DATE", 18, y);
+    doc.text("METHOD", 60, y);
+    doc.text("AMOUNT", 120, y);
+    doc.text("STATUS", 170, y);
+    y += 12;
+    doc.setFont("helvetica", "normal");
+
+    if (currentWithdrawals.length === 0) {
+      doc.text("No withdrawal requests found.", 18, y);
+    } else {
+      currentWithdrawals.forEach((w, index) => {
+        if (index % 2 === 0) {
+          doc.setFillColor(240, 240, 245);
+          doc.rect(14, y - 6, 182, 8, "F");
+        }
+        doc.setFontSize(9);
+        doc.text(w.date || "-", 18, y);
+        doc.setFont("helvetica", "bold");
+        doc.text(w.method || "-", 60, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(`-$${parseFloat(w.amount || 0).toLocaleString()}`, 120, y);
+        let stat = w.status === "Paid" ? "Completed" : (w.status || "Pending");
+        doc.text(stat, 170, y);
+        y += 8;
+        if (y > 270) { doc.addPage(); y = 20; }
+      });
+    }
+
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5);
       doc.line(14, 280, 196, 280);
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
       doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: "center" });
-      doc.text("OPTILINE - Partner Success Program", 105, 285, {
-        align: "center",
-      });
+      doc.text("OPTILINE - Partner Success Program", 105, 285, { align: "center" });
     }
     doc.save(`OPTILINE_Report_${partnerName.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`);
   }
@@ -625,7 +625,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function loadDashboard(data, isRefresh = false) {
     if(els.pName) els.pName.textContent = data.partnerId || "Partner";
     if(els.refLink) els.refLink.textContent = `${window.location.origin}/?ref=${data.partnerId}`;
+    
     currentTransactions = data.transactions || [];
+    currentWithdrawals = data.withdrawals || [];
+    
+    currentTransactions.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+    currentWithdrawals.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+    
     const totalComm = data.commission || 0;
     const totalWithdrawn = data.withdrawn || 0;
     const availableBalance = totalComm - totalWithdrawn;
@@ -638,7 +644,7 @@ document.addEventListener("DOMContentLoaded", () => {
     animateVal(els.valSales, totalSales, "");
     
     renderTable(currentTransactions);
-    renderWithdrawals(data.withdrawals || []);
+    renderWithdrawalTable(currentWithdrawals);
     updateCharts(currentTransactions);
     updateMilestones(totalComm);
     initializeTipSystem();
@@ -689,46 +695,69 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function renderWithdrawals(withdrawals) {
-    const wBody = document.getElementById("withdrawTableBody");
+  function renderWithdrawalTable(withdrawals) {
+    const wBody = els.withdrawalTableBody;
     if (!wBody) return;
     wBody.innerHTML = "";
     if (withdrawals.length === 0) {
-      wBody.innerHTML = `<tr><td colspan="4" class="empty-state">No withdrawals requested yet.</td></tr>`;
+      for (let i = 0; i < 3; i++) {
+        const tr = document.createElement("tr");
+        tr.style.opacity = "0.35";
+        tr.style.pointerEvents = "none";
+        tr.innerHTML = `
+          <td style="color: #666; font-family: monospace;">--/--/----</td>
+          <td style="color: #666; font-weight:700">$0.00</td>
+          <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">---</span></td>
+          <td style="text-align: center;"><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">No Data</span></td>
+        `;
+        wBody.appendChild(tr);
+      }
       return;
     }
     withdrawals.forEach((w) => {
       const tr = document.createElement("tr");
-      let statusStyle = w.status === "Paid" ? "color:#10B981; background:rgba(16,185,129,0.1);" : "color:#F59E0B; background:rgba(245,158,11,0.1);";
+      const statusClass = w.status === "Completed" || w.status === "Paid" ? "color:#10B981;" : "color:#F59E0B;";
+      const displayStatus = w.status === "Paid" ? "Completed" : (w.status || "Pending");
       tr.innerHTML = `
-        <td>${w.date || "N/A"}</td>
-        <td style="color:var(--accent-light);font-weight:700">$${parseFloat(w.amount || 0).toLocaleString()}</td>
-        <td>${w.method || "N/A"}</td>
-        <td><span style="${statusStyle}" class="status-badge">${w.status || "Pending"}</span></td>
+        <td>${w.date ? w.date.split("T")[0] : "N/A"}</td>
+        <td style="color:#c48df5; font-weight:700">$${parseFloat(w.amount || 0).toLocaleString()}</td>
+        <td><span class="package-badge" style="background:rgba(164, 94, 255, 0.1)">${w.method || "N/A"}</span></td>
+        <td style="text-align: center;"><span style="${statusClass}" class="status-badge">${displayStatus}</span></td>
       `;
       wBody.appendChild(tr);
     });
   }
+
   function renderTable(txs) {
     const tableBody = els.tableBody;
     if (!tableBody) return;
     tableBody.innerHTML = "";
+    
+    const tableContainer = document.getElementById("txTableContainer");
+    const toggleBtn = document.getElementById("toggleTxTableBtn");
+    const tableFade = document.getElementById("txTableFade");
+    const btnText = document.getElementById("txBtnText");
+    const btnIcon = document.getElementById("txBtnIcon");
+
     if (txs.length === 0) {
       for (let i = 0; i < 3; i++) {
         const tr = document.createElement("tr");
         tr.style.opacity = "0.35";
         tr.style.pointerEvents = "none";
         tr.innerHTML = `
-        <td style="color: #666; font-family: monospace;">--/--/----</td>
-        <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">Waiting</span></td>
-        <td style="color: #666; font-family: monospace;">--------</td>
-        <td style="color: #666; font-weight:700">$0.00</td>
-        <td><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">Inactive</span></td>
-      `;
+          <td style="color: #666; font-family: monospace;">--/--/----</td>
+          <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">Waiting</span></td>
+          <td style="color: #666; font-family: monospace;">--------</td>
+          <td style="color: #666; font-weight:700">$0.00</td>
+          <td style="text-align: center;"><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">Inactive</span></td>
+        `;
         tableBody.appendChild(tr);
       }
+      if(toggleBtn) toggleBtn.style.display = "none";
+      if(tableFade) tableFade.style.display = "none";
       return;
     }
+
     txs.forEach((tx) => {
       const tr = document.createElement("tr");
       let statusStyle = "color:#F59E0B; background:rgba(245,158,11,0.1);";
@@ -739,15 +768,53 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (tx.status === "Pending") {
         statusText = "Pending";
       }
+
+      let pkgStyle = "background: rgba(255,255,255,0.1); color: #fff;";
+      const pkgLower = (tx.package || "").toLowerCase();
+      if (pkgLower.includes("core")) pkgStyle = "background: rgba(170, 114, 231, 0.15); color: #aa72e7; border: 1px solid rgba(170, 114, 231, 0.3);";
+      else if (pkgLower.includes("nexus")) pkgStyle = "background: rgba(121, 52, 185, 0.15); color: #c48df5; border: 1px solid rgba(121, 52, 185, 0.3);";
+      else if (pkgLower.includes("matrix")) pkgStyle = "background: rgba(53, 18, 80, 0.4); color: #e1c0ff; border: 1px solid rgba(164, 94, 255, 0.3);";
+
       tr.innerHTML = `
-        <td>${tx.date || "N/A"}</td>
-        <td><span class="package-badge">${tx.package || "N/A"}</span></td>
+        <td>${tx.date ? tx.date.split("T")[0] : "N/A"}</td>
+        <td><span class="package-badge" style="${pkgStyle}">${tx.package || "N/A"}</span></td>
         <td>${tx.ref || "-"}</td>
         <td style="color:var(--accent-light);font-weight:700">$${parseFloat(tx.commission || "0").toLocaleString()}</td>
-        <td><span style="${statusStyle}" class="status-badge">${statusText}</span></td>
+        <td style="text-align: center;"><span style="${statusStyle}" class="status-badge">${statusText}</span></td>
       `;
       tableBody.appendChild(tr);
     });
+
+    if (txs.length > 5 && tableContainer && toggleBtn && tableFade) {
+      tableContainer.style.maxHeight = "380px";
+      tableFade.style.display = "block";
+      toggleBtn.style.display = "block";
+      
+      toggleBtn.onclick = function() {
+        if (tableContainer.style.maxHeight === "380px") {
+          tableContainer.style.maxHeight = tableContainer.scrollHeight + 50 + "px";
+          tableFade.style.display = "none";
+          btnText.textContent = "Collapse Ledger";
+          btnIcon.className = "fas fa-chevron-up";
+        } else {
+          tableContainer.style.maxHeight = "380px";
+          tableFade.style.display = "block";
+          btnText.textContent = "Show Full Ledger";
+          btnIcon.className = "fas fa-chevron-down";
+          
+          const ledgerTitle = document.getElementById("ledgerTitle");
+          if (ledgerTitle) {
+            const yOffset = -50; 
+            const y = ledgerTitle.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+          }
+        }
+      };
+    } else {
+      if(toggleBtn) toggleBtn.style.display = "none";
+      if(tableFade) tableFade.style.display = "none";
+      if(tableContainer) tableContainer.style.maxHeight = "none";
+    }
   }
 
   function updateCharts(txs) {
@@ -777,11 +844,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         pLabels = Object.keys(packageCounts);
         pData = Object.values(packageCounts);
-        const colorMap = {
-          core: "#aa72e7",
-          nexus: "#7934b9",
-          matrix: "#351250",
-        };
+        const colorMap = { core: "#aa72e7", nexus: "#7934b9", matrix: "#351250" };
         const fallbackColor = "#bcb4c5";
         pColors = pLabels.map((pkgName) => {
           const nameLower = pkgName.toLowerCase();
@@ -796,38 +859,24 @@ document.addEventListener("DOMContentLoaded", () => {
         type: "doughnut",
         data: {
           labels: pLabels,
-          datasets: [
-            {
-              data: pData,
-              backgroundColor: pColors,
-              borderWidth: 0,
-              hoverOffset: isDummy ? 0 : 15,
-              borderColor: "rgba(18, 8, 47, 0.5)",
-            },
-          ],
+          datasets: [{
+            data: pData,
+            backgroundColor: pColors,
+            borderWidth: 0,
+            hoverOffset: isDummy ? 0 : 15,
+            borderColor: "rgba(18, 8, 47, 0.5)",
+          }],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: {
-            animateScale: true,
-            animateRotate: true,
-            duration: 1500,
-            easing: "easeOutQuart"
-          },
+          animation: { animateScale: true, animateRotate: true, duration: 1500, easing: "easeOutQuart" },
           hover: { mode: "nearest", intersect: true },
-          layout: {
-            padding: { top: 25, bottom: 25, left: 10, right: 10 }
-          },
+          layout: { padding: { top: 25, bottom: 25, left: 10, right: 10 } },
           plugins: {
             legend: {
               position: "bottom",
-              labels: {
-                color: isDummy ? "#555" : "#F0F0F8",
-                font: { family: "Inter", size: 12 },
-                padding: 20,
-                usePointStyle: true,
-              },
+              labels: { color: isDummy ? "#555" : "#F0F0F8", font: { family: "Inter", size: 12 }, padding: 20, usePointStyle: true },
             },
             tooltip: {
               enabled: !isDummy,
@@ -862,74 +911,67 @@ document.addEventListener("DOMContentLoaded", () => {
         tBg = "rgba(255, 255, 255, 0.03)";
         tBorder = "rgba(255, 255, 255, 0.05)";
       } else {
-        const sortedDates = Object.keys(earningsByDate).filter((d) => d !== "N/A").sort();
+        const sortedDates = Object.keys(earningsByDate).filter((d) => d !== "N/A").sort((a, b) => new Date(a) - new Date(b));
         tLabels = sortedDates;
         tData = sortedDates.map((d) => earningsByDate[d]);
         tBg = "rgba(164, 94, 255, 0.7)";
         tBorder = "rgba(138, 43, 226, 1)";
       }
 
+      let ctxGradient = trendCtx.getContext("2d");
+      let gradient = ctxGradient.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, "rgba(164, 94, 255, 0.8)");
+      gradient.addColorStop(1, "rgba(164, 94, 255, 0.1)");
+
+      let hoverGradient = ctxGradient.createLinearGradient(0, 0, 0, 400);
+      hoverGradient.addColorStop(0, "rgba(138, 43, 226, 0.95)");
+      hoverGradient.addColorStop(1, "rgba(138, 43, 226, 0.2)");
+
       charts.trend = new Chart(trendCtx, {
         type: "bar",
         data: {
           labels: tLabels,
-          datasets: [
-            {
-              label: isDummy ? "No Data" : "Earnings ($)",
-              data: tData,
-              backgroundColor: tBg,
-              borderColor: tBorder,
-              borderWidth: 2,
-              borderRadius: 8,
-              hoverBackgroundColor: isDummy ? "rgba(255, 255, 255, 0.08)" : "rgba(164, 94, 255, 1)",
-              hoverBorderColor: "#ffffff",
-              hoverBorderWidth: 2,
-              borderSkipped: false,
-            },
-          ],
+          datasets: [{
+            label: isDummy ? "No Data" : "Earnings ($)",
+            data: tData,
+            backgroundColor: isDummy ? "rgba(255, 255, 255, 0.05)" : gradient,
+            borderColor: isDummy ? "rgba(255, 255, 255, 0.1)" : "#A45EFF",
+            borderWidth: 1,
+            borderRadius: 6,
+            borderSkipped: false,
+            barPercentage: 0.5,
+            hoverBackgroundColor: isDummy ? "rgba(255, 255, 255, 0.08)" : hoverGradient,
+            hoverBorderColor: isDummy ? "rgba(255, 255, 255, 0.2)" : "#8A2BE2"
+          }],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: {
-            duration: 2500,
-            easing: "easeOutElastic",
-            delay: (context) => context.dataIndex * 150
-          },
-          hover: {
-            mode: "index",
-            intersect: false,
-            animationDuration: 400
-          },
+          animation: { y: { duration: 1500, easing: 'easeOutQuart' } },
           scales: {
             y: {
               beginAtZero: true,
               display: !isDummy,
               grid: { color: "rgba(255, 255, 255, 0.05)", drawBorder: false },
-              ticks: {
-                color: "#C0C0D0",
-                callback: function (value) { return "$" + value; },
-              },
+              ticks: { color: "#9ca3af", callback: function (value) { return "$" + value; }, font: { family: "Inter", size: 11 } }
             },
             x: {
               display: !isDummy,
               grid: { display: false },
-              ticks: {
-                color: "#C0C0D0",
-                maxRotation: 45,
-                minRotation: 45,
-              },
+              ticks: { color: "#9ca3af", font: { family: "Inter", size: 11 } },
             },
           },
           plugins: {
             legend: { display: false },
             tooltip: {
               enabled: !isDummy,
-              backgroundColor: "rgba(10, 10, 26, 0.9)",
-              titleColor: "#A45EFF",
-              bodyColor: "#fff",
-              borderColor: "rgba(138, 43, 226, 0.3)",
+              backgroundColor: "rgba(18, 8, 47, 0.95)",
+              titleColor: "#c48df5",
+              bodyColor: "#ffffff",
+              borderColor: "rgba(164, 94, 255, 0.4)",
               borderWidth: 1,
+              padding: 12,
+              displayColors: false,
               callbacks: {
                 label: function (context) { return `Earnings: $${context.parsed.y}`; },
               },
