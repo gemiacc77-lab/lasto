@@ -626,12 +626,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if(els.pName) els.pName.textContent = data.partnerId || "Partner";
     if(els.refLink) els.refLink.textContent = `${window.location.origin}/?ref=${data.partnerId}`;
     currentTransactions = data.transactions || [];
-    const paidTransactions = currentTransactions.filter((tx) => tx.status === "Paid");
-    const totalComm = paidTransactions.reduce((sum, tx) => sum + (parseFloat(tx.commission) || 0), 0);
-    const totalSales = currentTransactions.length;
+    const totalComm = data.commission || 0;
+    const totalWithdrawn = data.withdrawn || 0;
+    const availableBalance = totalComm - totalWithdrawn;
+    const totalSales = data.sales || 0;
+    
+    const valAvail = document.getElementById("valAvail");
+    if(valAvail) animateVal(valAvail, availableBalance, "$");
+    
     animateVal(els.valComm, totalComm, "$");
     animateVal(els.valSales, totalSales, "");
+    
     renderTable(currentTransactions);
+    renderWithdrawals(data.withdrawals || []);
     updateCharts(currentTransactions);
     updateMilestones(totalComm);
     initializeTipSystem();
@@ -682,6 +689,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function renderWithdrawals(withdrawals) {
+    const wBody = document.getElementById("withdrawTableBody");
+    if (!wBody) return;
+    wBody.innerHTML = "";
+    if (withdrawals.length === 0) {
+      wBody.innerHTML = `<tr><td colspan="4" class="empty-state">No withdrawals requested yet.</td></tr>`;
+      return;
+    }
+    withdrawals.forEach((w) => {
+      const tr = document.createElement("tr");
+      let statusStyle = w.status === "Paid" ? "color:#10B981; background:rgba(16,185,129,0.1);" : "color:#F59E0B; background:rgba(245,158,11,0.1);";
+      tr.innerHTML = `
+        <td>${w.date || "N/A"}</td>
+        <td style="color:var(--accent-light);font-weight:700">$${parseFloat(w.amount || 0).toLocaleString()}</td>
+        <td>${w.method || "N/A"}</td>
+        <td><span style="${statusStyle}" class="status-badge">${w.status || "Pending"}</span></td>
+      `;
+      wBody.appendChild(tr);
+    });
+  }
   function renderTable(txs) {
     const tableBody = els.tableBody;
     if (!tableBody) return;
@@ -782,6 +809,16 @@ document.addEventListener("DOMContentLoaded", () => {
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: {
+            animateScale: true,
+            animateRotate: true,
+            duration: 1500,
+            easing: "easeOutQuart"
+          },
+          hover: { mode: "nearest", intersect: true },
+          layout: {
+            padding: { top: 25, bottom: 25, left: 10, right: 10 }
+          },
           plugins: {
             legend: {
               position: "bottom",
@@ -800,7 +837,11 @@ document.addEventListener("DOMContentLoaded", () => {
               borderColor: "rgba(138, 43, 226, 0.3)",
               borderWidth: 1,
               callbacks: {
-                label: (context) => ` ${context.label}: ${context.parsed} sales`,
+                label: (context) => {
+                  const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                  const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ${context.parsed} Sales (${percentage}%)`;
+                },
               },
             },
           },
@@ -838,15 +879,28 @@ document.addEventListener("DOMContentLoaded", () => {
               data: tData,
               backgroundColor: tBg,
               borderColor: tBorder,
-              borderWidth: 1,
-              borderRadius: 6,
-              hoverBackgroundColor: isDummy ? tBg : "rgba(138, 43, 226, 0.9)",
+              borderWidth: 2,
+              borderRadius: 8,
+              hoverBackgroundColor: isDummy ? "rgba(255, 255, 255, 0.08)" : "rgba(164, 94, 255, 1)",
+              hoverBorderColor: "#ffffff",
+              hoverBorderWidth: 2,
+              borderSkipped: false,
             },
           ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          animation: {
+            duration: 2500,
+            easing: "easeOutElastic",
+            delay: (context) => context.dataIndex * 150
+          },
+          hover: {
+            mode: "index",
+            intersect: false,
+            animationDuration: 400
+          },
           scales: {
             y: {
               beginAtZero: true,
