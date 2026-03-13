@@ -2846,3 +2846,19 @@ html.is-logged-in #dashStage {
   opacity: 1 !important;
   visibility: visible !important;
 }
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#txTableContainer {
+  transition: max-height 0.8s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.psp-table th {
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  color: #e1c0ff; 
+  padding: 15px 10px;
+}
