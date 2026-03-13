@@ -30,7 +30,16 @@ document.addEventListener("DOMContentLoaded", () => {
     submitBtn: document.getElementById("submitWithdrawBtn"),
     withdrawError: document.getElementById("withdrawError")
   };
-
+      const toggleWPass = document.getElementById("toggleWPass");
+  if (toggleWPass && els.ppass) {
+    toggleWPass.addEventListener("click", function () {
+      const isPassword = els.ppass.getAttribute("type") === "password";
+      els.ppass.setAttribute("type", isPassword ? "text" : "password");
+      
+      this.classList.remove("fa-eye", "fa-eye-slash");
+      this.classList.add(isPassword ? "fa-eye" : "fa-eye-slash");
+    });
+  }
   let maxAvailableBalance = 0;
 
   const urlParams = new URLSearchParams(window.location.search);
