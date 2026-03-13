@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then((res) => res.json())
     .then((data) => {
       if (data.status === "success") {
-        calculateBalanceAndProceed(data.data.transactions);
+        calculateBalanceAndProceed(data.data);
       } else {
         showError(els.authError, "Invalid credentials.");
         resetVerifyBtn();
@@ -126,9 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  function calculateBalanceAndProceed(transactions) {
-    const paidTransactions = transactions.filter(tx => tx.status === "Paid");
-    maxAvailableBalance = paidTransactions.reduce((sum, tx) => sum + (parseFloat(tx.commission) || 0), 0);
+  function calculateBalanceAndProceed(data) {
+    maxAvailableBalance = (parseFloat(data.commission) || 0) - (parseFloat(data.withdrawn) || 0);
 
     if (maxAvailableBalance < 100) {
       showError(els.authError, `Your available balance is $${maxAvailableBalance}. Minimum withdrawal is $100.`);
@@ -211,6 +210,21 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(res => res.json())
     .then(data => {
+      const activeSession = localStorage.getItem("optiline_psp_session");
+      if (activeSession) {
+        const parsed = JSON.parse(activeSession);
+        parsed.lastActivity = Date.now();
+        if(!parsed.data.withdrawn) parsed.data.withdrawn = 0;
+        parsed.data.withdrawn += amount;
+        if(!parsed.data.withdrawals) parsed.data.withdrawals = [];
+        parsed.data.withdrawals.unshift({
+            date: new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' }),
+            amount: amount,
+            method: finalMethod,
+            status: "Pending"
+        });
+        localStorage.setItem("optiline_psp_session", JSON.stringify(parsed));
+      }
       if (typeof gsap !== "undefined") {
         gsap.to(els.step2, {
           opacity: 0,
