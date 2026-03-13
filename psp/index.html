@@ -742,11 +742,15 @@
           </div>
           <div class="stats-grid anim-dash">
             <div class="stat-card">
+              <span class="stat-label">Available Balance</span>
+              <span class="stat-value" id="valAvail" style="color:var(--accent-light);">$0</span>
+            </div>
+            <div class="stat-card">
               <span class="stat-label">Total Earnings</span>
               <span class="stat-value" id="valComm">$0</span>
             </div>
             <div class="stat-card">
-              <span class="stat-label">Total Qualified Conversions</span>
+              <span class="stat-label">Total Conversions</span>
               <span class="stat-value" id="valSales">0</span>
             </div>
           </div>
@@ -908,6 +912,29 @@
                     <td colspan="5" class="empty-state" id="emptyState">
                       No transactions recorded yet. Start sharing your link!
                     </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel-header" style="margin-top: 3rem;">
+              <h4 class="panel-title glow-text left-align">
+                <i class="fas fa-money-check-alt"></i> Withdrawal History
+              </h4>
+            </div>
+            <div class="table-responsive-wrapper">
+              <table class="psp-table" id="withdrawTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="withdrawTableBody">
+                  <tr>
+                    <td colspan="4" class="empty-state">No withdrawals requested yet.</td>
                   </tr>
                 </tbody>
               </table>
