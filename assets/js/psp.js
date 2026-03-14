@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const API_URL = "https://script.google.com/macros/s/AKfycbwWNsRWtnGwvE66VpDOeishxk6jGRT6oJ6Qup73vgHI7mjbMvPPQoTAFcdeHC9CD-_RJQ/exec";
   const ENROLL_WEBHOOK = "https://script.google.com/macros/s/AKfycbyck7pBRCWeseen7SkV4ntkgjRmZ4IepOOwWXq75pk3WbJQnFrVVTV-6FmBoyullnT4/exec";
   
-    const els = {
+  const els = {
     loginStage: document.getElementById("loginStage"),
     dashStage: document.getElementById("dashStage"),
     pid: document.getElementById("pid"),
@@ -88,6 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
     resultContainer: document.getElementById("resultContainer"),
     feedTrack: document.getElementById("feedTrack"),
     withdrawTableBody: document.getElementById("withdrawTableBody"),
+    withdrawTableContainer: document.getElementById("withdrawTableContainer"),
+    withdrawTableFade: document.getElementById("withdrawTableFade"),
+    toggleWithdrawBtn: document.getElementById("toggleWithdrawTableBtn"),
+    withdrawBtnIcon: document.getElementById("withdrawBtnIcon"),
   };
 
   const tips = [
@@ -696,134 +700,168 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderWithdrawalTable(withdrawals) {
+    if (!els.withdrawTableBody) return;
     const wBody = els.withdrawTableBody;
-    if (!wBody) return;
+    const tableContainer = els.withdrawTableContainer;
+    const toggleBtn = els.toggleWithdrawBtn;
+    const tableFade = els.withdrawTableFade;
+    const btnIcon = els.withdrawBtnIcon;
     wBody.innerHTML = "";
     if (withdrawals.length === 0) {
-      for (let i = 0; i < 3; i++) {
-        const tr = document.createElement("tr");
-        tr.style.opacity = "0.35";
-        tr.style.pointerEvents = "none";
-        tr.innerHTML = `
-          <td style="color: #666; font-family: monospace;">--/--/----</td>
-          <td style="color: #666; font-weight:700">$0.00</td>
-          <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">---</span></td>
-          <td style="text-align: center;"><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">No Data</span></td>
-        `;
-        wBody.appendChild(tr);
-      }
-      return;
+        for (let i = 0; i < 3; i++) {
+            const tr = document.createElement("tr");
+            tr.style.opacity = "0.35";
+            tr.style.pointerEvents = "none";
+            tr.innerHTML = `
+                <td style="color: #666; font-family: monospace;">--/--/----</td>
+                <td style="color: #666; font-weight:700">$0.00</td>
+                <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">---</span></td>
+                <td style="text-align: center;"><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">No Data</span></td>
+            `;
+            wBody.appendChild(tr);
+        }
+        if (toggleBtn) toggleBtn.style.display = "none";
+        if (tableFade) tableFade.style.display = "none";
+        if (tableContainer) tableContainer.style.maxHeight = "none";
+        return;
     }
     withdrawals.forEach((w) => {
-      const tr = document.createElement("tr");
-      const statusClass = w.status === "Completed" || w.status === "Paid" ? "color:#10B981;" : "color:#F59E0B;";
-      const displayStatus = w.status === "Paid" ? "Completed" : (w.status || "Pending");
-      tr.innerHTML = `
-        <td>${w.date ? w.date.split("T")[0] : "N/A"}</td>
-        <td style="color:#c48df5; font-weight:700">$${parseFloat(w.amount || 0).toLocaleString()}</td>
-        <td><span class="package-badge" style="background:rgba(164, 94, 255, 0.1)">${w.method || "N/A"}</span></td>
-        <td style="text-align: center;"><span style="${statusClass}" class="status-badge">${displayStatus}</span></td>
-      `;
-      wBody.appendChild(tr);
+        const tr = document.createElement("tr");
+        const statusClass = w.status === "Completed" || w.status === "Paid" ? "color:#10B981;" : "color:#F59E0B;";
+        const displayStatus = w.status === "Paid" ? "Completed" : (w.status || "Pending");
+        tr.innerHTML = `
+            <td>${w.date ? w.date.split("T")[0] : "N/A"}</td>
+            <td style="color:#c48df5; font-weight:700">$${parseFloat(w.amount || 0).toLocaleString()}</td>
+            <td><span class="package-badge" style="background:rgba(164, 94, 255, 0.1)">${w.method || "N/A"}</span></td>
+            <td style="text-align: center;"><span style="${statusClass}" class="status-badge">${displayStatus}</span></td>
+        `;
+        wBody.appendChild(tr);
     });
-  }
-
-    function renderTable(txs) {
+    if (withdrawals.length <= 5) {
+        if (toggleBtn) toggleBtn.style.display = "none";
+        if (tableFade) tableFade.style.display = "none";
+        if (tableContainer) tableContainer.style.maxHeight = "none";
+        return;
+    }
+    if (tableContainer && toggleBtn && tableFade) {
+        setTimeout(() => {
+            const table = document.getElementById("withdrawTable");
+            if (!table) return;
+            const thead = table.querySelector('thead');
+            const headerHeight = thead ? thead.offsetHeight : 0;
+            const rows = table.querySelectorAll('tbody tr');
+            let rowsHeight = 0;
+            for (let i = 0; i < Math.min(4, rows.length); i++) {
+                rowsHeight += rows[i].offsetHeight;
+            }
+            const collapsedHeight = headerHeight + rowsHeight + 2;
+            const fullHeight = tableContainer.scrollHeight;
+            tableContainer.style.maxHeight = collapsedHeight + 'px';
+            tableFade.style.display = 'block';
+            toggleBtn.style.display = 'inline-block';
+            btnIcon.className = 'fas fa-chevron-down';
+            toggleBtn.onclick = function() {
+                if (tableContainer.style.maxHeight === collapsedHeight + 'px') {
+                    tableContainer.style.maxHeight = fullHeight + 'px';
+                    tableFade.style.display = 'none';
+                    btnIcon.className = 'fas fa-chevron-up';
+                } else {
+                    tableContainer.style.maxHeight = collapsedHeight + 'px';
+                    tableFade.style.display = 'block';
+                    btnIcon.className = 'fas fa-chevron-down';
+                }
+            };
+        }, 50);
+    }
+}
+function renderTable(txs) {
+    if (!els.tableBody) return;
     const tableBody = els.tableBody;
-    if (!tableBody) return;
     tableBody.innerHTML = "";
-    
     const tableContainer = document.getElementById("txTableContainer");
     const toggleBtn = document.getElementById("toggleTxTableBtn");
     const tableFade = document.getElementById("txTableFade");
-    const btnText = document.getElementById("txBtnText");
     const btnIcon = document.getElementById("txBtnIcon");
-
     if (txs.length === 0) {
-      for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
+            const tr = document.createElement("tr");
+            tr.style.opacity = "0.35";
+            tr.style.pointerEvents = "none";
+            tr.innerHTML = `
+                <td style="color: #666; font-family: monospace;">--/--/----</td>
+                <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">Waiting</span></td>
+                <td style="color: #666; font-family: monospace;">--------</td>
+                <td style="color: #666; font-weight:700">$0.00</td>
+                <td style="text-align: center;"><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">Inactive</span></td>
+            `;
+            tableBody.appendChild(tr);
+        }
+        if (toggleBtn) toggleBtn.style.display = "none";
+        if (tableFade) tableFade.style.display = "none";
+        if (tableContainer) tableContainer.style.maxHeight = "none";
+        return;
+    }
+    txs.forEach((tx) => {
         const tr = document.createElement("tr");
-        tr.style.opacity = "0.35";
-        tr.style.pointerEvents = "none";
+        let statusStyle = "color:#F59E0B; background:rgba(245,158,11,0.1);";
+        let statusText = tx.status;
+        if (tx.status === "Completed" || tx.status === "Paid") {
+            statusStyle = "color:#10B981; background:rgba(16,185,129,0.1); font-weight:600;";
+            statusText = "Paid";
+        } else if (tx.status === "Pending") {
+            statusText = "Pending";
+        }
+        let pkgStyle = "background: rgba(255,255,255,0.1); color: #fff;";
+        const pkgLower = (tx.package || "").toLowerCase();
+        if (pkgLower.includes("core")) pkgStyle = "background: rgba(170, 114, 231, 0.15); color: #aa72e7; border: 1px solid rgba(170, 114, 231, 0.3);";
+        else if (pkgLower.includes("nexus")) pkgStyle = "background: rgba(121, 52, 185, 0.15); color: #c48df5; border: 1px solid rgba(121, 52, 185, 0.3);";
+        else if (pkgLower.includes("matrix")) pkgStyle = "background: rgba(53, 18, 80, 0.4); color: #e1c0ff; border: 1px solid rgba(164, 94, 255, 0.3);";
         tr.innerHTML = `
-          <td style="color: #666; font-family: monospace;">--/--/----</td>
-          <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">Waiting</span></td>
-          <td style="color: #666; font-family: monospace;">--------</td>
-          <td style="color: #666; font-weight:700">$0.00</td>
-          <td style="text-align: center;"><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">Inactive</span></td>
+            <td>${tx.date ? tx.date.split("T")[0] : "N/A"}</td>
+            <td><span class="package-badge" style="${pkgStyle}">${tx.package || "N/A"}</span></td>
+            <td>${tx.ref || "-"}</td>
+            <td style="color:var(--accent-light);font-weight:700">$${parseFloat(tx.commission || "0").toLocaleString()}</td>
+            <td style="text-align: center;"><span style="${statusStyle}" class="status-badge">${statusText}</span></td>
         `;
         tableBody.appendChild(tr);
-      }
-      if(toggleBtn) toggleBtn.style.display = "none";
-      if(tableFade) tableFade.style.display = "none";
-      if(tableContainer) tableContainer.style.maxHeight = "none";
-      return;
-    }
-
-    txs.forEach((tx) => {
-      const tr = document.createElement("tr");
-      let statusStyle = "color:#F59E0B; background:rgba(245,158,11,0.1);";
-      let statusText = tx.status;
-      if (tx.status === "Completed" || tx.status === "Paid") {
-        statusStyle = "color:#10B981; background:rgba(16,185,129,0.1); font-weight:600;";
-        statusText = "Paid";
-      } else if (tx.status === "Pending") {
-        statusText = "Pending";
-      }
-
-      let pkgStyle = "background: rgba(255,255,255,0.1); color: #fff;";
-      const pkgLower = (tx.package || "").toLowerCase();
-      if (pkgLower.includes("core")) pkgStyle = "background: rgba(170, 114, 231, 0.15); color: #aa72e7; border: 1px solid rgba(170, 114, 231, 0.3);";
-      else if (pkgLower.includes("nexus")) pkgStyle = "background: rgba(121, 52, 185, 0.15); color: #c48df5; border: 1px solid rgba(121, 52, 185, 0.3);";
-      else if (pkgLower.includes("matrix")) pkgStyle = "background: rgba(53, 18, 80, 0.4); color: #e1c0ff; border: 1px solid rgba(164, 94, 255, 0.3);";
-
-      tr.innerHTML = `
-        <td>${tx.date ? tx.date.split("T")[0] : "N/A"}</td>
-        <td><span class="package-badge" style="${pkgStyle}">${tx.package || "N/A"}</span></td>
-        <td>${tx.ref || "-"}</td>
-        <td style="color:var(--accent-light);font-weight:700">$${parseFloat(tx.commission || "0").toLocaleString()}</td>
-        <td style="text-align: center;"><span style="${statusStyle}" class="status-badge">${statusText}</span></td>
-      `;
-      tableBody.appendChild(tr);
     });
-
-    if (txs.length > 5 && tableContainer && toggleBtn && tableFade) {
-      setTimeout(() => {
-        const table = document.getElementById("transactionTable");
-        const thead = table.querySelector('thead');
-        const headerHeight = thead ? thead.offsetHeight : 0;
-        const rows = table.querySelectorAll('tbody tr');
-        let rowsHeight = 0;
-        for (let i = 0; i < Math.min(4, rows.length); i++) {
-          rowsHeight += rows[i].offsetHeight;
-        }
-        const collapsedHeight = headerHeight + rowsHeight + 2;
-        const fullHeight = tableContainer.scrollHeight;
-        
-        tableContainer.style.maxHeight = collapsedHeight + 'px';
-        tableFade.style.display = 'block';
-        toggleBtn.style.display = 'inline-block';
-        
-        toggleBtn.onclick = function() {
-          if (tableContainer.style.maxHeight === collapsedHeight + 'px') {
-            tableContainer.style.maxHeight = fullHeight + 'px';
-            tableFade.style.display = 'none';
-            btnText.textContent = 'Collapse Ledger';
-            btnIcon.className = 'fas fa-chevron-up';
-          } else {
+    if (txs.length <= 5) {
+        if (toggleBtn) toggleBtn.style.display = "none";
+        if (tableFade) tableFade.style.display = "none";
+        if (tableContainer) tableContainer.style.maxHeight = "none";
+        return;
+    }
+    if (tableContainer && toggleBtn && tableFade) {
+        setTimeout(() => {
+            const table = document.getElementById("transactionTable");
+            if (!table) return;
+            const thead = table.querySelector('thead');
+            const headerHeight = thead ? thead.offsetHeight : 0;
+            const rows = table.querySelectorAll('tbody tr');
+            let rowsHeight = 0;
+            for (let i = 0; i < Math.min(4, rows.length); i++) {
+                rowsHeight += rows[i].offsetHeight;
+            }
+            const collapsedHeight = headerHeight + rowsHeight + 2;
+            const fullHeight = tableContainer.scrollHeight;
             tableContainer.style.maxHeight = collapsedHeight + 'px';
             tableFade.style.display = 'block';
-            btnText.textContent = 'Show Full Ledger';
+            toggleBtn.style.display = 'inline-block';
             btnIcon.className = 'fas fa-chevron-down';
-          }
-        };
-      }, 50);
-    } else {
-      if(toggleBtn) toggleBtn.style.display = "none";
-      if(tableFade) tableFade.style.display = "none";
-      if(tableContainer) tableContainer.style.maxHeight = "none";
+            toggleBtn.onclick = function() {
+                if (tableContainer.style.maxHeight === collapsedHeight + 'px') {
+                    tableContainer.style.maxHeight = fullHeight + 'px';
+                    tableFade.style.display = 'none';
+                    btnIcon.className = 'fas fa-chevron-up';
+                } else {
+                    tableContainer.style.maxHeight = collapsedHeight + 'px';
+                    tableFade.style.display = 'block';
+                    btnIcon.className = 'fas fa-chevron-down';
+                }
+            };
+        }, 50);
     }
-  }
-
+}
   function updateCharts(txs) {
     const packageCounts = {};
     const earningsByDate = {};
@@ -996,7 +1034,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const progress = Math.min(100, (totalComm / target) * 100);
       const fillElement = card.querySelector(".m-fill");
       const currentValElement = card.querySelector(".m-current-val");
-      gsap.to(fillElement, { width: `${progress}%`, duration: 1.5, ease: "power2.out" });
+      if (fillElement) gsap.to(fillElement, { width: `${progress}%`, duration: 1.5, ease: "power2.out" });
       const startVal = parseFloat(currentValElement.textContent.replace("$", "").replace(/,/g, "")) || 0;
       const finalVal = Math.min(totalComm, target);
       gsap.to(
@@ -1005,8 +1043,8 @@ document.addEventListener("DOMContentLoaded", () => {
           value: finalVal,
           duration: 1.5,
           ease: "power2.out",
-          onUpdate: function () { currentValElement.textContent = `$${Math.floor(this.vars.value).toLocaleString()}`; },
-          onComplete: function () { currentValElement.textContent = `$${finalVal.toLocaleString()}`; },
+          onUpdate: function () { if (currentValElement) currentValElement.textContent = `$${Math.floor(this.vars.value).toLocaleString()}`; },
+          onComplete: function () { if (currentValElement) currentValElement.textContent = `$${finalVal.toLocaleString()}`; },
         }
       );
       if (totalComm >= target) {
@@ -1024,8 +1062,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function initSmartLinkBuilder() {
     if (els.generateLinkBtn) {
       els.generateLinkBtn.addEventListener("click", () => {
-        const baseUrl = document.getElementById("targetPage").value;
-        const tag = document.getElementById("campaignTag").value.trim();
+        const baseUrl = document.getElementById("targetPage");
+        if (!baseUrl) return;
+        const tag = document.getElementById("campaignTag") ? document.getElementById("campaignTag").value.trim() : "";
         let partnerId = "PARTNER";
         if (els.pName && els.pName.textContent !== "Partner") {
           partnerId = els.pName.textContent;
@@ -1035,7 +1074,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (refText.includes("=")) partnerId = refText.split("=")[1];
           } catch (e) {}
         }
-        let finalUrl = `${baseUrl}?ref=${partnerId}`;
+        let finalUrl = `${baseUrl.value}?ref=${partnerId}`;
         if (tag) finalUrl += `&camp=${tag}`;
         if (els.smartLinkOutput && els.resultContainer) {
           els.smartLinkOutput.textContent = finalUrl;
@@ -1188,7 +1227,6 @@ document.addEventListener("DOMContentLoaded", () => {
       typeWriter();
     }
   }
-
 });
 
 const messageInput = document.getElementById("partnerMessage");
@@ -1254,26 +1292,36 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!this.classList.contains('confirm-ready')) {
         e.preventDefault();
         this.classList.add('confirm-ready');
-        gsap.to(this, {
-          scale: 0.92, opacity: 0.7, duration: 0.1,
-          onComplete: () => {
-            this.innerHTML = '<i class="fas fa-check-double"></i> Click Again';
-            this.style.background = '#5a189a';
-            gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
-          }
-        });
-        clearTimeout(this.resetTimer);
-        this.resetTimer = setTimeout(() => {
-          this.classList.remove('confirm-ready');
+        if (typeof gsap !== "undefined") {
           gsap.to(this, {
             scale: 0.92, opacity: 0.7, duration: 0.1,
             onComplete: () => {
-              this.innerHTML = this.dataset.originalHtml;
-              this.style.background = '';
+              this.innerHTML = '<i class="fas fa-check-double"></i> Click Again';
+              this.style.background = '#5a189a';
               gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
             }
           });
-        }, 2000); 
+        } else {
+          this.innerHTML = '<i class="fas fa-check-double"></i> Click Again';
+          this.style.background = '#5a189a';
+        }
+        clearTimeout(this.resetTimer);
+        this.resetTimer = setTimeout(() => {
+          this.classList.remove('confirm-ready');
+          if (typeof gsap !== "undefined") {
+            gsap.to(this, {
+              scale: 0.92, opacity: 0.7, duration: 0.1,
+              onComplete: () => {
+                this.innerHTML = this.dataset.originalHtml;
+                this.style.background = '';
+                gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
+              }
+            });
+          } else {
+            this.innerHTML = this.dataset.originalHtml;
+            this.style.background = '';
+          }
+        }, 2000);
       } else {
         clearTimeout(this.resetTimer);
         setTimeout(() => {
