@@ -519,9 +519,9 @@ body {
 .chart-container {
   position: relative;
   background: var(--card-bg);
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 20px;
-  border: 1px solid var(--card-border-color);
+  border: 2px solid var(--card-border-color);
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -530,7 +530,7 @@ body {
 }
 .chart-wrapper {
   position: relative;
-  height: 350px;
+  height: 400px;
   width: 100%;
   max-width: 100%;
 }
@@ -1484,7 +1484,7 @@ select.builder-input option {
       width: 100% !important;
   }
   .chart-wrapper {
-      height: 280px;
+      height: 350px;
   }
   .tips-section, .data-panel, .milestones-section, .builder-section, .activity-section, .ai-section, .help-section {
       padding: 1.2rem;
@@ -2861,4 +2861,86 @@ html.is-logged-in #dashStage {
   letter-spacing: 0.5px;
   color: #e1c0ff; 
   padding: 15px 10px;
+}
+.table-responsive-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#txTableContainer, #withdrawTableContainer {
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#txTableContainer table, #withdrawTableContainer table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.psp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.psp-table th, .psp-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(138, 43, 226, 0.1);
+}
+
+@media (max-width: 768px) {
+  .psp-table {
+    font-size: 12px;
+  }
+  .psp-table th, .psp-table td {
+    padding: 8px 4px;
+    white-space: nowrap;
+  }
+  .psp-table th:nth-child(1), .psp-table td:nth-child(1) { min-width: 80px; }
+  .psp-table th:nth-child(2), .psp-table td:nth-child(2) { min-width: 70px; }
+  .psp-table th:nth-child(3), .psp-table td:nth-child(3) { min-width: 70px; }
+  .psp-table th:nth-child(4), .psp-table td:nth-child(4) { min-width: 70px; }
+  .psp-table th:nth-child(5), .psp-table td:nth-child(5) { min-width: 70px; }
+}
+
+.table-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, var(--primary-dark) 90%);
+  pointer-events: none;
+  z-index: 2;
+  display: none;
+}
+
+.table-toggle-btn {
+  display: none;
+  margin: 10px auto 0;
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  color: var(--accent-light);
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.table-toggle-btn:hover {
+  background: rgba(138, 43, 226, 0.2);
+  border-color: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+.table-toggle-btn i {
+  margin-right: 8px;
 }
