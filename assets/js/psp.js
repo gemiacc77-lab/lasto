@@ -1,1335 +1,1224 @@
-if ('scrollRestoration' in history) {
-  history.scrollRestoration = 'manual';
-}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>
+      Partner Success Program | OPTILINE - Strategic Growth & Affiliate
+      Ecosystem
+    </title>
+    <meta
+      name="description"
+      content="Join OPTILINE's Partner Success Program (PSP). A dual-track ecosystem for performance marketers and B2B growth partners. Earn high-tier commissions with real-time attribution."
+    />
+    <meta
+      name="keywords"
+      content="affiliate program, high commission, digital marketing partner, elite affiliate, OPTILINE PSP, performance tracking, sales dashboard, revenue analytics"
+    />
 
-const SESSION_KEY = "optiline_psp_session";
-const SESSION_TIMEOUT = 30 * 60 * 1000;
+    <meta name="author" content="OPTILINE" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://optiline.online/psp/" />
+    <meta property="og:title" content="Partner Success Program | OPTILINE" />
+    <meta
+      property="og:description"
+      content="Unlock elite growth opportunities with premium affiliate earnings and real-time performance analytics."
+    />
+    <meta property="og:image" content="/assets/imgs/optiline-logo.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://optiline.online/psp/" />
+    <meta name="twitter:title" content="Partner Success Program | OPTILINE" />
+    <meta
+      name="twitter:description"
+      content="Unlock elite growth opportunities with premium affiliate earnings and real-time performance analytics."
+    />
+    <meta name="twitter:image" content="/assets/imgs/optiline-logo.webp" />
+    <link rel="canonical" href="https://optiline.online/psp/" />
 
-function initSession() {
-  const session = localStorage.getItem(SESSION_KEY);
-  if (session) {
-    const parsed = JSON.parse(session);
-    if (Date.now() - parsed.lastActivity < SESSION_TIMEOUT) {
-      document.documentElement.classList.add('is-logged-in');
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    } else {
-      localStorage.removeItem(SESSION_KEY);
-      document.documentElement.classList.remove('is-logged-in');
-    }
-  } else {
-    document.documentElement.classList.remove('is-logged-in');
-  }
-}
-initSession();
-
-let activityTimeout = null;
-function updateActivity() {
-  if (activityTimeout) return;
-  activityTimeout = setTimeout(() => {
-    const sessionData = localStorage.getItem(SESSION_KEY);
-    if (sessionData) {
-      const parsed = JSON.parse(sessionData);
-      parsed.lastActivity = Date.now();
-      localStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
-    }
-    activityTimeout = null;
-  }, 5000);
-}
-
-['mousemove', 'keydown', 'scroll', 'click', 'touchstart'].forEach(evt => {
-  document.addEventListener(evt, updateActivity, { passive: true });
-});
-
-setInterval(() => {
-  const sessionData = localStorage.getItem(SESSION_KEY);
-  if(sessionData) {
-    const parsed = JSON.parse(sessionData);
-    if (Date.now() - parsed.lastActivity >= SESSION_TIMEOUT) {
-      localStorage.removeItem(SESSION_KEY);
-      window.location.reload();
-    }
-  }
-}, 60000);
-
-document.addEventListener("DOMContentLoaded", () => {
-  const API_URL = "https://script.google.com/macros/s/AKfycbwWNsRWtnGwvE66VpDOeishxk6jGRT6oJ6Qup73vgHI7mjbMvPPQoTAFcdeHC9CD-_RJQ/exec";
-  const ENROLL_WEBHOOK = "https://script.google.com/macros/s/AKfycbyck7pBRCWeseen7SkV4ntkgjRmZ4IepOOwWXq75pk3WbJQnFrVVTV-6FmBoyullnT4/exec";
-  
-  const els = {
-    loginStage: document.getElementById("loginStage"),
-    dashStage: document.getElementById("dashStage"),
-    pid: document.getElementById("pid"),
-    ppass: document.getElementById("ppass"),
-    authBtn: document.getElementById("authBtn"),
-    authError: document.getElementById("authError"),
-    pName: document.getElementById("pName"),
-    refLink: document.getElementById("refLink"),
-    valComm: document.getElementById("valComm"),
-    valSales: document.getElementById("valSales"),
-    tableBody: document.getElementById("tableBody"),
-    emptyState: document.getElementById("emptyState"),
-    withdrawRequestBtn: document.getElementById("withdrawRequestBtn"),
-    copyBtn: document.getElementById("copyBtn"),
-    logoutBtn: document.getElementById("logoutBtn"),
-    enrollForm: document.getElementById("enrollForm"),
-    enrollSubmit: document.getElementById("enrollSubmit"),
-    tipText: document.getElementById("tipText"),
-    milestoneCards: document.querySelectorAll(".milestone-card"),
-    prevTip: document.getElementById("prevTip"),
-    nextTip: document.getElementById("nextTip"),
-    exportCSV: document.getElementById("exportCSV"),
-    exportExcel: document.getElementById("exportExcel"),
-    exportPDF: document.getElementById("exportPDF"),
-    txFilter: document.getElementById("txFilter"),
-    transactionTable: document.getElementById("transactionTable"),
-    generateLinkBtn: document.getElementById("generateLinkBtn"),
-    copySmartLinkBtn: document.getElementById("copySmartLinkBtn"),
-    smartLinkOutput: document.getElementById("smartLinkOutput"),
-    resultContainer: document.getElementById("resultContainer"),
-    feedTrack: document.getElementById("feedTrack"),
-    withdrawTableBody: document.getElementById("withdrawTableBody"),
-    withdrawTableContainer: document.getElementById("withdrawTableContainer"),
-    withdrawTableFade: document.getElementById("withdrawTableFade"),
-    toggleWithdrawBtn: document.getElementById("toggleWithdrawTableBtn"),
-    withdrawBtnIcon: document.getElementById("withdrawBtnIcon"),
-  };
-
-  const tips = [
-    "Consistency is key: Share your link daily to build momentum.",
-    "Your potential is limitless keep pushing boundaries.",
-    "Every click is a step closer to your next milestone.",
-    "Success is not an accident, it's a choice you make every day.",
-    "Focus on value: Explain how OPTILINE solves real problems.",
-    "Be the leader in your network. Show them the future.",
-    "Small daily improvements lead to stunning results.",
-    "Track your metrics, optimize your strategy, scale your income.",
-    "You are part of the elite. Act like it.",
-    "Momentum builds success. Keep the wheel turning.",
-    "Your network is your net worth. Expand it.",
-    "Legendary status is just a few conversions away.",
-  ];
-  
-  let charts = { package: null, trend: null };
-  let currentTipIndex = 0;
-  let currentTransactions = [];
-  let currentWithdrawals = [];
-
-  const activeSession = localStorage.getItem(SESSION_KEY);
-  if (activeSession && document.documentElement.classList.contains('is-logged-in')) {
-    const parsedData = JSON.parse(activeSession);
-    setTimeout(() => {
-      loadDashboard(parsedData.data, true);
-    }, 50);
-    fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "partner_login",
-        partnerId: parsedData.data.partnerId,
-        password: parsedData.data.password
-      }),
-    })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.status === "success") {
-        data.data.password = parsedData.data.password;
-        localStorage.setItem(SESSION_KEY, JSON.stringify({
-          data: data.data,
-          lastActivity: Date.now()
-        }));
-        loadDashboard(data.data, true);
-      }
-    });
-  } else {
-    document.documentElement.classList.remove('is-logged-in');
-    if (typeof gsap !== "undefined") {
-      gsap.to(".login-card", { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: 0.2 });
-    } else {
-      const card = document.querySelector(".login-card");
-      if(card) { card.style.opacity = "1"; card.style.transform = "none"; }
-    }
-  }
-
-  function initializeTipSystem() {
-    if (els.tipText && els.prevTip && els.nextTip) {
-      updateTipProgress();
-      els.prevTip.addEventListener("click", () => {
-        currentTipIndex = (currentTipIndex - 1 + tips.length) % tips.length;
-        updateTipDisplay();
-        updateTipProgress();
-      });
-      els.nextTip.addEventListener("click", () => {
-        currentTipIndex = (currentTipIndex + 1) % tips.length;
-        updateTipDisplay();
-        updateTipProgress();
-      });
-      updateTipDisplay();
-      setInterval(() => {
-        currentTipIndex = (currentTipIndex + 1) % tips.length;
-        updateTipDisplay();
-        updateTipProgress();
-      }, 8000);
-    }
-  }
-
-  function updateTipDisplay() {
-    if (!els.tipText) return;
-    if (typeof gsap !== "undefined") {
-      gsap.to(els.tipText, {
-        opacity: 0, y: 20, duration: 0.3,
-        onComplete: () => {
-          els.tipText.textContent = tips[currentTipIndex];
-          gsap.to(els.tipText, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
-        },
-      });
-    } else {
-        els.tipText.textContent = tips[currentTipIndex];
-    }
-  }
-
-  function updateTipProgress() {
-    const progressBar = document.querySelector(".tip-progress-bar");
-    if (progressBar) {
-      const progress = ((currentTipIndex + 1) / tips.length) * 100;
-      if (typeof gsap !== "undefined") {
-        gsap.to(progressBar, { width: `${progress}%`, duration: 0.5, ease: "power2.out" });
-      } else {
-        progressBar.style.width = `${progress}%`;
-      }
-    }
-  }
-
-  if (els.authBtn) els.authBtn.addEventListener("click", attemptLogin);
-  if (document.getElementById("togglePassword")) {
-    document.getElementById("togglePassword").addEventListener("click", function () {
-        const isPass = els.ppass.getAttribute("type") === "password";
-        els.ppass.setAttribute("type", isPass ? "text" : "password");
-        this.classList.remove(isPass ? "fa-eye-slash" : "fa-eye");
-        this.classList.add(isPass ? "fa-eye" : "fa-eye-slash");
-        this.style.color = isPass ? "var(--accent-light)" : "var(--text-gray)";
-      });
-  }
-
-  if (els.logoutBtn) {
-    els.logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem(SESSION_KEY);
-      window.location.reload();
-    });
-  }
-
-  [els.pid, els.ppass].forEach((input) => {
-    if (input) {
-      input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") attemptLogin();
-      });
-    }
-  });
-
-  if (els.withdrawRequestBtn) {
-    els.withdrawRequestBtn.addEventListener("click", () => {
-      const sessionData = localStorage.getItem(SESSION_KEY);
-      let partnerId = "";
-      if (sessionData) {
-        const parsed = JSON.parse(sessionData);
-        if (parsed && parsed.data && parsed.data.partnerId) {
-          partnerId = parsed.data.partnerId;
-        }
-      }
-      window.location.href = `/withdraw/?pid=${partnerId}`;
-    });
-  }
-
-  if (els.copyBtn) {
-    els.copyBtn.addEventListener("click", () => {
-      navigator.clipboard.writeText(els.refLink.textContent).then(() => {
-        const originalText = els.copyBtn.textContent;
-        const originalBackground = els.copyBtn.style.background;
-        els.copyBtn.textContent = "Copied!";
-        els.copyBtn.style.background = "#10B981";
-        els.copyBtn.style.color = "white";
-        setTimeout(() => {
-          els.copyBtn.textContent = originalText;
-          els.copyBtn.style.background = originalBackground;
-          els.copyBtn.style.color = "";
-        }, 2000);
-      });
-    });
-  }
-
-  if (els.enrollForm) {
-    els.enrollForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const feedbackEl = document.getElementById("formFeedback");
-      const submitBtn = els.enrollSubmit;
-      const phoneInput = els.enrollForm.querySelector('input[name="phone"]');
-      const emailInput = els.enrollForm.querySelector('input[name="email"]');
-      const originalBtnText = submitBtn.innerHTML;
-      function showLocalError(msg) {
-        if (feedbackEl) {
-          feedbackEl.textContent = msg;
-          feedbackEl.style.display = "block";
-          feedbackEl.className = "form-feedback error-msg";
-          if (typeof gsap !== "undefined") {
-            gsap.fromTo(feedbackEl, { y: -10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 });
-          }
-        } else { alert(msg); }
-      }
-      if (!phoneInput.value.startsWith("+")) {
-        showLocalError("Phone number must start with country code (e.g. +966...).");
-        return;
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
-        showLocalError("Please enter a valid email address.");
-        return;
-      }
-      const socialInput = els.enrollForm.querySelector('input[name="social"]');
-      if (!socialInput || !socialInput.value.trim() || !/^https?:\/\/.+/i.test(socialInput.value.trim())) {
-        showLocalError("Please enter a valid URL starting with http:// or https://");
-        return;
-      }
-      const formData = new FormData(els.enrollForm);
-      const turnstileToken = formData.get("cf-turnstile-response");
-      if (!turnstileToken) {
-        showLocalError("Please complete the security check (Captcha) above the button.");
-        return;
-      }
-      if (feedbackEl) feedbackEl.style.display = "none";
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin"></i>';
-      const data = new URLSearchParams();
-      for (const pair of formData) { data.append(pair[0], pair[1]); }
-      if (!data.has("cf-turnstile-response")) { data.append("cf-turnstile-response", turnstileToken); }
-      try {
-        const response = await fetch(ENROLL_WEBHOOK, { method: "POST", body: data });
-        const result = await response.json();
-        if (result.status === "success" || result.result === "success") {
-          if (typeof turnstile !== "undefined") turnstile.reset();
-          localStorage.removeItem("partnerName");
-          localStorage.removeItem("partnerPhone");
-          localStorage.removeItem("partnerEmail");
-          localStorage.removeItem("partnerSocial");
-          localStorage.removeItem("partnerMessage");
-          handleSuccess(result.name || "Partner");
-        } else {
-          throw new Error(result.message || "Submission failed");
-        }
-      } catch (err) {
-        showLocalError(err.message === "Failed to fetch" ? "Connection error. Please check your internet." : err.message);
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
-        if (typeof turnstile !== "undefined") turnstile.reset();
-      }
-    });
-    
-    function handleSuccess(name) {
-      const formEl = document.getElementById("enrollForm");
-      const successEl = document.getElementById("enrollSuccess");
-      const successNameEl = document.getElementById("successName");
-      if (typeof gsap !== "undefined") {
-        gsap.to(formEl, {
-          opacity: 0, height: 0, margin: 0, padding: 0, duration: 0.5,
-          onComplete: () => {
-            formEl.style.display = "none";
-            successEl.style.display = "block";
-            if (successNameEl) successNameEl.textContent = name;
-            gsap.fromTo(successEl, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
-          },
-        });
-      } else {
-        formEl.style.display = "none";
-        successEl.style.display = "block";
-        if (successNameEl) successNameEl.textContent = name;
-      }
-    }
-  }
-
-  function setupExportButtons() {
-    if (els.exportCSV) els.exportCSV.addEventListener("click", exportToCSV);
-    if (els.exportExcel) els.exportExcel.addEventListener("click", exportToExcel);
-    if (els.exportPDF) els.exportPDF.addEventListener("click", exportToPDF);
-    if (els.txFilter) {
-      els.txFilter.addEventListener("change", (e) => {
-        const val = e.target.value;
-        if (val === "all") {
-          renderTable(currentTransactions);
-        } else {
-          const limit = parseInt(val);
-          const now = new Date();
-          const filtered = currentTransactions.filter((tx) => {
-            if (!tx.date) return false;
-            const txDate = new Date(tx.date);
-            const diffTime = Math.abs(now - txDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays <= limit;
-          });
-          renderTable(filtered);
-        }
-      });
-    }
-  }
-
-  function exportToCSV() {
-    if (currentTransactions.length === 0) {
-      alert("No transaction data to export.");
-      return;
-    }
-    let csvContent = "Date,Package,Ref ID,Commission,Status\n";
-    currentTransactions.forEach((tx) => {
-      const row = [
-        tx.date || "N/A", tx.package || "N/A", tx.ref || "-", `$${tx.commission || "0"}`, tx.status || "Completed",
-      ];
-      csvContent += row.map((field) => `"${field}"`).join(",") + "\n";
-    });
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `optiline-transactions-${new Date().toISOString().split("T")[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  }
-
-  function exportToExcel() {
-    if (currentTransactions.length === 0) {
-      alert("No transaction data to export.");
-      return;
-    }
-    const wb = XLSX.utils.book_new();
-    const wsData = [
-      ["Date", "Package", "Ref ID", "Commission", "Status"],
-      ...currentTransactions.map((tx) => [
-        tx.date || "N/A", tx.package || "N/A", tx.ref || "-", parseFloat(tx.commission) || 0, tx.status || "Completed",
-      ]),
-    ];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, "Transactions");
-    XLSX.writeFile(wb, `optiline-transactions-${new Date().toISOString().split("T")[0]}.xlsx`);
-  }
-
-  function exportToPDF() {
-    if (currentTransactions.length === 0 && currentWithdrawals.length === 0) {
-      alert("No data available to export.");
-      return;
-    }
-    const getLogoData = () => {
-      const img = document.querySelector(".logo img");
-      if (!img) return null;
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      return canvas.toDataURL("image/png");
-    };
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const partnerName = els.pName ? els.pName.textContent : "Partner";
-    const logoData = getLogoData();
-    const dateStr = new Date().toLocaleDateString();
-    
-    doc.setFillColor(18, 8, 47);
-    doc.rect(0, 0, 210, 40, "F");
-    if (logoData) {
-      doc.addImage(logoData, "PNG", 14, 15, 45, 8 * (45 / 45));
-    } else {
-      doc.setFontSize(22);
-      doc.setTextColor(255, 255, 255);
-      doc.text("OPTILINE", 14, 25);
-    }
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(164, 94, 255);
-    doc.text("OFFICIAL COMMISSION STATEMENT", 140, 18);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(200, 200, 200);
-    doc.text(`Generated: ${dateStr}`, 140, 24);
-    doc.text(`Partner: ${partnerName}`, 140, 29);
-    
-    let y = 60;
-    
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text("Transaction History", 14, y);
-    y += 5;
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(14, y, 196, y);
-    y += 12; 
-    
-    doc.setFillColor(230, 230, 235);
-    doc.rect(14, y - 6, 182, 10, "F");
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text("DATE", 18, y);
-    doc.text("PACKAGE", 50, y);
-    doc.text("REF ID", 90, y);
-    doc.text("AMOUNT", 140, y);
-    doc.text("STATUS", 170, y);
-    y += 12;
-    doc.setFont("helvetica", "normal");
-    
-    if (currentTransactions.length === 0) {
-      doc.text("No transactions recorded.", 18, y);
-      y += 10;
-    } else {
-      currentTransactions.forEach((tx, index) => {
-        if (index % 2 === 0) {
-          doc.setFillColor(240, 240, 245);
-          doc.rect(14, y - 6, 182, 8, "F");
-        }
-        doc.setFontSize(9);
-        doc.text(tx.date || "-", 18, y);
-        doc.setFont("helvetica", "bold");
-        doc.text(tx.package || "-", 50, y);
-        doc.setFont("helvetica", "normal");
-        doc.text(tx.ref || "-", 90, y);
-        doc.text(`$${tx.commission}`, 140, y);
-        doc.text(tx.status || "Completed", 170, y);
-        y += 8;
-        if (y > 270) { doc.addPage(); y = 20; }
-      });
-    }
-
-    if (y > 240) { doc.addPage(); y = 20; }
-    else { y += 20; } 
-    
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("Withdrawal History", 14, y);
-    y += 5;
-    doc.setLineWidth(0.5);
-    doc.line(14, y, 196, y);
-    y += 12; 
-    
-    doc.setFillColor(230, 230, 235);
-    doc.rect(14, y - 6, 182, 10, "F");
-    doc.setFontSize(9);
-    doc.text("DATE", 18, y);
-    doc.text("METHOD", 60, y);
-    doc.text("AMOUNT", 120, y);
-    doc.text("STATUS", 170, y);
-    y += 12;
-    doc.setFont("helvetica", "normal");
-
-    if (currentWithdrawals.length === 0) {
-      doc.text("No withdrawal requests found.", 18, y);
-    } else {
-      currentWithdrawals.forEach((w, index) => {
-        if (index % 2 === 0) {
-          doc.setFillColor(240, 240, 245);
-          doc.rect(14, y - 6, 182, 8, "F");
-        }
-        doc.setFontSize(9);
-        doc.text(w.date || "-", 18, y);
-        doc.setFont("helvetica", "bold");
-        doc.text(w.method || "-", 60, y);
-        doc.setFont("helvetica", "normal");
-        doc.text(`-$${parseFloat(w.amount || 0).toLocaleString()}`, 120, y);
-        let stat = w.status === "Paid" ? "Completed" : (w.status || "Pending");
-        doc.text(stat, 170, y);
-        y += 8;
-        if (y > 270) { doc.addPage(); y = 20; }
-      });
-    }
-
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setDrawColor(0, 0, 0);
-      doc.line(14, 280, 196, 280);
-      doc.setFontSize(8);
-      doc.setTextColor(150, 150, 150);
-      doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: "center" });
-      doc.text("OPTILINE - Partner Success Program", 105, 285, { align: "center" });
-    }
-    doc.save(`OPTILINE_Report_${partnerName.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}.pdf`);
-  }
-
-  function attemptLogin() {
-    const id = els.pid.value.trim();
-    const pass = els.ppass.value.trim();
-    if (!id || !pass) {
-      showError("Please enter valid Partner ID and Access Key.");
-      return;
-    }
-    els.authBtn.disabled = true;
-    els.authBtn.querySelector(".btn-txt").textContent = "Authenticating...";
-    if(els.authError) els.authError.style.display = "none";
-    fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "partner_login",
-        partnerId: id,
-        password: pass,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "success") {
-          data.data.password = pass;
-          localStorage.setItem(SESSION_KEY, JSON.stringify({
-            data: data.data,
-            lastActivity: Date.now()
-          }));
-          loadDashboard(data.data);
-        } else {
-          showError(
-            data.message || "Invalid credentials. Please check your Partner ID and Access Key."
-          );
-          resetBtn();
-        }
-      })
-      .catch((err) => {
-        showError("Connection failed. Please check your internet or try again later.");
-        resetBtn();
-      });
-  }
-
-  function showError(msg) {
-    if(els.authError) {
-      els.authError.textContent = msg;
-      els.authError.style.display = "block";
-      if (typeof gsap !== "undefined") {
-        gsap.from(els.authError, { y: -10, opacity: 0, duration: 0.3 });
-      }
-    }
-  }
-
-  function resetBtn() {
-    if(els.authBtn) {
-      els.authBtn.disabled = false;
-      els.authBtn.querySelector(".btn-txt").textContent = "Access Dashboard";
-    }
-  }
-
-  function animateVal(element, finalValue, prefix = "", duration = 2) {
-    if (!element) return;
-    if (typeof gsap === "undefined") {
-      element.textContent = prefix + finalValue.toLocaleString();
-      return;
-    }
-    element.textContent = prefix + "0";
-    const obj = { val: 0 };
-    gsap.to(obj, {
-      val: finalValue,
-      duration: duration,
-      ease: "power2.out",
-      onUpdate: function () {
-        element.textContent = prefix + Math.floor(obj.val).toLocaleString();
-      },
-      onComplete: function () {
-        element.textContent = prefix + finalValue.toLocaleString();
-      },
-    });
-  }
-
-  function loadDashboard(data, isRefresh = false) {
-    if(els.pName) els.pName.textContent = data.partnerId || "Partner";
-    if(els.refLink) els.refLink.textContent = `${window.location.origin}/?ref=${data.partnerId}`;
-    
-    currentTransactions = data.transactions || [];
-    currentWithdrawals = data.withdrawals || [];
-    
-    currentTransactions.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-    currentWithdrawals.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-    
-    const totalComm = data.commission || 0;
-    const totalWithdrawn = data.withdrawn || 0;
-    const availableBalance = totalComm - totalWithdrawn;
-    const totalSales = data.sales || 0;
-    
-    const valAvail = document.getElementById("valAvail");
-    if(valAvail) animateVal(valAvail, availableBalance, "$");
-    
-    animateVal(els.valComm, totalComm, "$");
-    animateVal(els.valSales, totalSales, "");
-    
-    renderTable(currentTransactions);
-    renderWithdrawalTable(currentWithdrawals);
-    updateCharts(currentTransactions);
-    updateMilestones(totalComm);
-    initializeTipSystem();
-    setupExportButtons();
-    initSmartLinkBuilder();
-    initOrganicFeed();
-    updateAIInsights(currentTransactions);
-    
-    document.documentElement.classList.add('is-logged-in');
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    
-    if (isRefresh) {
-      if(els.loginStage) els.loginStage.classList.remove("active");
-      if(els.dashStage) els.dashStage.classList.remove("hidden");
-      return;
-    }
-
-    if (typeof gsap !== "undefined") {
-      const tl = gsap.timeline();
-      tl.to(els.loginStage, {
-        opacity: 0,
-        y: -20,
-        duration: 0.5,
-        ease: "power2.in",
-        onComplete: () => {
-          if(els.loginStage) els.loginStage.classList.remove("active");
-          if(els.dashStage) els.dashStage.classList.remove("hidden");
-          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-        },
-      }).fromTo(
-        ".anim-dash",
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: "back.out(1.2)",
-        },
-      );
-    } else {
-      if(els.loginStage) els.loginStage.classList.remove("active");
-      if(els.dashStage) {
-        els.dashStage.classList.remove("hidden");
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-        els.dashStage.classList.add("active");
-      }
-    }
-  }
-
-  function renderWithdrawalTable(withdrawals) {
-    if (!els.withdrawTableBody) return;
-    const wBody = els.withdrawTableBody;
-    const tableContainer = els.withdrawTableContainer;
-    const toggleBtn = els.toggleWithdrawBtn;
-    const tableFade = els.withdrawTableFade;
-    const btnIcon = els.withdrawBtnIcon;
-    wBody.innerHTML = "";
-    if (withdrawals.length === 0) {
-        for (let i = 0; i < 3; i++) {
-            const tr = document.createElement("tr");
-            tr.style.opacity = "0.35";
-            tr.style.pointerEvents = "none";
-            tr.innerHTML = `
-                <td style="color: #666; font-family: monospace;">--/--/----</td>
-                <td style="color: #666; font-weight:700">$0.00</td>
-                <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">---</span></td>
-                <td style="text-align: center;"><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">No Data</span></td>
-            `;
-            wBody.appendChild(tr);
-        }
-        if (toggleBtn) toggleBtn.style.display = "none";
-        if (tableFade) tableFade.style.display = "none";
-        if (tableContainer) tableContainer.style.maxHeight = "none";
-        return;
-    }
-    withdrawals.forEach((w) => {
-        const tr = document.createElement("tr");
-        const statusClass = w.status === "Completed" || w.status === "Paid" ? "color:#10B981;" : "color:#F59E0B;";
-        const displayStatus = w.status === "Paid" ? "Completed" : (w.status || "Pending");
-        tr.innerHTML = `
-            <td>${w.date ? w.date.split("T")[0] : "N/A"}</td>
-            <td style="color:#c48df5; font-weight:700">$${parseFloat(w.amount || 0).toLocaleString()}</td>
-            <td><span class="package-badge" style="background:rgba(164, 94, 255, 0.1)">${w.method || "N/A"}</span></td>
-            <td style="text-align: center;"><span style="${statusClass}" class="status-badge">${displayStatus}</span></td>
-        `;
-        wBody.appendChild(tr);
-    });
-    if (withdrawals.length <= 5) {
-        if (toggleBtn) toggleBtn.style.display = "none";
-        if (tableFade) tableFade.style.display = "none";
-        if (tableContainer) tableContainer.style.maxHeight = "none";
-        return;
-    }
-    if (tableContainer && toggleBtn && tableFade) {
-        setTimeout(() => {
-            const table = document.getElementById("withdrawTable");
-            if (!table) return;
-            const thead = table.querySelector('thead');
-            const headerHeight = thead ? thead.offsetHeight : 0;
-            const rows = table.querySelectorAll('tbody tr');
-            let rowsHeight = 0;
-            for (let i = 0; i < Math.min(4, rows.length); i++) {
-                rowsHeight += rows[i].offsetHeight;
-            }
-            const collapsedHeight = headerHeight + rowsHeight + 2;
-            const fullHeight = tableContainer.scrollHeight;
-            tableContainer.style.maxHeight = collapsedHeight + 'px';
-            tableFade.style.display = 'block';
-            toggleBtn.style.display = 'inline-block';
-            btnIcon.className = 'fas fa-chevron-down';
-            toggleBtn.onclick = function() {
-                if (tableContainer.style.maxHeight === collapsedHeight + 'px') {
-                    tableContainer.style.maxHeight = fullHeight + 'px';
-                    tableFade.style.display = 'none';
-                    btnIcon.className = 'fas fa-chevron-up';
-                } else {
-                    tableContainer.style.maxHeight = collapsedHeight + 'px';
-                    tableFade.style.display = 'block';
-                    btnIcon.className = 'fas fa-chevron-down';
-                }
-            };
-        }, 50);
-    }
-}
-function renderTable(txs) {
-    if (!els.tableBody) return;
-    const tableBody = els.tableBody;
-    tableBody.innerHTML = "";
-    const tableContainer = document.getElementById("txTableContainer");
-    const toggleBtn = document.getElementById("toggleTxTableBtn");
-    const tableFade = document.getElementById("txTableFade");
-    const btnIcon = document.getElementById("txBtnIcon");
-    if (txs.length === 0) {
-        for (let i = 0; i < 3; i++) {
-            const tr = document.createElement("tr");
-            tr.style.opacity = "0.35";
-            tr.style.pointerEvents = "none";
-            tr.innerHTML = `
-                <td style="color: #666; font-family: monospace;">--/--/----</td>
-                <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">Waiting</span></td>
-                <td style="color: #666; font-family: monospace;">--------</td>
-                <td style="color: #666; font-weight:700">$0.00</td>
-                <td style="text-align: center;"><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">Inactive</span></td>
-            `;
-            tableBody.appendChild(tr);
-        }
-        if (toggleBtn) toggleBtn.style.display = "none";
-        if (tableFade) tableFade.style.display = "none";
-        if (tableContainer) tableContainer.style.maxHeight = "none";
-        return;
-    }
-    txs.forEach((tx) => {
-        const tr = document.createElement("tr");
-        let statusStyle = "color:#F59E0B; background:rgba(245,158,11,0.1);";
-        let statusText = tx.status;
-        if (tx.status === "Completed" || tx.status === "Paid") {
-            statusStyle = "color:#10B981; background:rgba(16,185,129,0.1); font-weight:600;";
-            statusText = "Paid";
-        } else if (tx.status === "Pending") {
-            statusText = "Pending";
-        }
-        let pkgStyle = "background: rgba(255,255,255,0.1); color: #fff;";
-        const pkgLower = (tx.package || "").toLowerCase();
-        if (pkgLower.includes("core")) pkgStyle = "background: rgba(170, 114, 231, 0.15); color: #aa72e7; border: 1px solid rgba(170, 114, 231, 0.3);";
-        else if (pkgLower.includes("nexus")) pkgStyle = "background: rgba(121, 52, 185, 0.15); color: #c48df5; border: 1px solid rgba(121, 52, 185, 0.3);";
-        else if (pkgLower.includes("matrix")) pkgStyle = "background: rgba(53, 18, 80, 0.4); color: #e1c0ff; border: 1px solid rgba(164, 94, 255, 0.3);";
-        tr.innerHTML = `
-            <td>${tx.date ? tx.date.split("T")[0] : "N/A"}</td>
-            <td><span class="package-badge" style="${pkgStyle}">${tx.package || "N/A"}</span></td>
-            <td>${tx.ref || "-"}</td>
-            <td style="color:var(--accent-light);font-weight:700">$${parseFloat(tx.commission || "0").toLocaleString()}</td>
-            <td style="text-align: center;"><span style="${statusStyle}" class="status-badge">${statusText}</span></td>
-        `;
-        tableBody.appendChild(tr);
-    });
-    if (txs.length <= 5) {
-        if (toggleBtn) toggleBtn.style.display = "none";
-        if (tableFade) tableFade.style.display = "none";
-        if (tableContainer) tableContainer.style.maxHeight = "none";
-        return;
-    }
-    if (tableContainer && toggleBtn && tableFade) {
-        setTimeout(() => {
-            const table = document.getElementById("transactionTable");
-            if (!table) return;
-            const thead = table.querySelector('thead');
-            const headerHeight = thead ? thead.offsetHeight : 0;
-            const rows = table.querySelectorAll('tbody tr');
-            let rowsHeight = 0;
-            for (let i = 0; i < Math.min(4, rows.length); i++) {
-                rowsHeight += rows[i].offsetHeight;
-            }
-            const collapsedHeight = headerHeight + rowsHeight + 2;
-            const fullHeight = tableContainer.scrollHeight;
-            tableContainer.style.maxHeight = collapsedHeight + 'px';
-            tableFade.style.display = 'block';
-            toggleBtn.style.display = 'inline-block';
-            btnIcon.className = 'fas fa-chevron-down';
-            toggleBtn.onclick = function() {
-                if (tableContainer.style.maxHeight === collapsedHeight + 'px') {
-                    tableContainer.style.maxHeight = fullHeight + 'px';
-                    tableFade.style.display = 'none';
-                    btnIcon.className = 'fas fa-chevron-up';
-                } else {
-                    tableContainer.style.maxHeight = collapsedHeight + 'px';
-                    tableFade.style.display = 'block';
-                    btnIcon.className = 'fas fa-chevron-down';
-                }
-            };
-        }, 50);
-    }
-}
-  function updateCharts(txs) {
-    const packageCounts = {};
-    const earningsByDate = {};
-    txs.forEach((tx) => {
-      const pkg = tx.package || "Unknown";
-      packageCounts[pkg] = (packageCounts[pkg] || 0) + 1;
-      const date = tx.date ? tx.date.split("T")[0] : "N/A";
-      if (date !== "N/A") {
-        earningsByDate[date] = (earningsByDate[date] || 0) + (parseFloat(tx.commission) || 0);
-      }
-    });
-
-    const isDummy = txs.length === 0;
-
-    const packageCtx = document.getElementById("packageChart");
-    if (packageCtx && typeof Chart !== "undefined") {
-      if (charts.package) charts.package.destroy();
-
-      let pLabels, pData, pColors;
-
-      if (isDummy) {
-        pLabels = ["Core", "Nexus", "Matrix"];
-        pData = [1, 1, 1];
-        pColors = ["#262626", "#333333", "#404040"];
-      } else {
-        pLabels = Object.keys(packageCounts);
-        pData = Object.values(packageCounts);
-        const colorMap = { core: "#aa72e7", nexus: "#7934b9", matrix: "#351250" };
-        const fallbackColor = "#bcb4c5";
-        pColors = pLabels.map((pkgName) => {
-          const nameLower = pkgName.toLowerCase();
-          if (nameLower.includes("core")) return colorMap.core;
-          if (nameLower.includes("nexus")) return colorMap.nexus;
-          if (nameLower.includes("matrix")) return colorMap.matrix;
-          return fallbackColor;
-        });
-      }
-
-      charts.package = new Chart(packageCtx, {
-        type: "doughnut",
-        data: {
-          labels: pLabels,
-          datasets: [{
-            data: pData,
-            backgroundColor: pColors,
-            borderWidth: 0,
-            hoverOffset: isDummy ? 0 : 15,
-            borderColor: "rgba(18, 8, 47, 0.5)",
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: { animateScale: true, animateRotate: true, duration: 1500, easing: "easeOutQuart" },
-          hover: { mode: "nearest", intersect: true },
-          layout: { padding: { top: 25, bottom: 25, left: 10, right: 10 } },
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: { color: isDummy ? "#555" : "#F0F0F8", font: { family: "Inter", size: 12 }, padding: 20, usePointStyle: true },
-            },
-            tooltip: {
-              enabled: !isDummy,
-              backgroundColor: "rgba(10, 10, 26, 0.9)",
-              titleColor: "#A45EFF",
-              bodyColor: "#fff",
-              borderColor: "rgba(138, 43, 226, 0.3)",
-              borderWidth: 1,
-              callbacks: {
-                label: (context) => {
-                  const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
-                  const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                  return ` ${context.label}: ${context.parsed} Sales (${percentage}%)`;
-                },
-              },
-            },
-          },
-          cutout: "75%",
-        },
-      });
-    }
-
-    const trendCtx = document.getElementById("earningsTrendChart");
-    if (trendCtx && typeof Chart !== "undefined") {
-      if (charts.trend) charts.trend.destroy();
-
-      let tLabels, tData, tBg, tBorder;
-
-      if (isDummy) {
-        tLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        tData = [200, 450, 300, 550, 400, 600, 350];
-        tBg = "rgba(255, 255, 255, 0.03)";
-        tBorder = "rgba(255, 255, 255, 0.05)";
-      } else {
-        const sortedDates = Object.keys(earningsByDate).filter((d) => d !== "N/A").sort((a, b) => new Date(a) - new Date(b));
-        tLabels = sortedDates;
-        tData = sortedDates.map((d) => earningsByDate[d]);
-        tBg = "rgba(164, 94, 255, 0.7)";
-        tBorder = "rgba(138, 43, 226, 1)";
-      }
-
-      let ctxGradient = trendCtx.getContext("2d");
-      let gradient = ctxGradient.createLinearGradient(0, 0, 0, 400);
-      gradient.addColorStop(0, "rgba(164, 94, 255, 0.8)");
-      gradient.addColorStop(1, "rgba(164, 94, 255, 0.1)");
-
-      let hoverGradient = ctxGradient.createLinearGradient(0, 0, 0, 400);
-      hoverGradient.addColorStop(0, "rgba(138, 43, 226, 0.95)");
-      hoverGradient.addColorStop(1, "rgba(138, 43, 226, 0.2)");
-
-      charts.trend = new Chart(trendCtx, {
-        type: "bar",
-        data: {
-          labels: tLabels,
-          datasets: [{
-            label: isDummy ? "No Data" : "Earnings ($)",
-            data: tData,
-            backgroundColor: isDummy ? "rgba(255, 255, 255, 0.05)" : gradient,
-            borderColor: isDummy ? "rgba(255, 255, 255, 0.1)" : "#A45EFF",
-            borderWidth: 1,
-            borderRadius: 6,
-            borderSkipped: false,
-            barPercentage: 0.5,
-            hoverBackgroundColor: isDummy ? "rgba(255, 255, 255, 0.08)" : hoverGradient,
-            hoverBorderColor: isDummy ? "rgba(255, 255, 255, 0.2)" : "#8A2BE2"
-          }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: { y: { duration: 1500, easing: 'easeOutQuart' } },
-          scales: {
-            y: {
-              beginAtZero: true,
-              display: !isDummy,
-              grid: { color: "rgba(255, 255, 255, 0.05)", drawBorder: false },
-              ticks: { color: "#9ca3af", callback: function (value) { return "$" + value; }, font: { family: "Inter", size: 11 } }
-            },
-            x: {
-              display: !isDummy,
-              grid: { display: false },
-              ticks: { color: "#9ca3af", font: { family: "Inter", size: 11 } },
-            },
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              enabled: !isDummy,
-              backgroundColor: "rgba(18, 8, 47, 0.95)",
-              titleColor: "#c48df5",
-              bodyColor: "#ffffff",
-              borderColor: "rgba(164, 94, 255, 0.4)",
-              borderWidth: 1,
-              padding: 12,
-              displayColors: false,
-              callbacks: {
-                label: function (context) { return `Earnings: $${context.parsed.y}`; },
-              },
-            },
-          },
-        },
-      });
-    }
-  }
-
-  function updateMilestones(totalComm) {
-    if (typeof gsap === "undefined") return;
-    els.milestoneCards.forEach((card) => {
-      const target = parseInt(card.getAttribute("data-target"));
-      const progress = Math.min(100, (totalComm / target) * 100);
-      const fillElement = card.querySelector(".m-fill");
-      const currentValElement = card.querySelector(".m-current-val");
-      if (fillElement) gsap.to(fillElement, { width: `${progress}%`, duration: 1.5, ease: "power2.out" });
-      const startVal = parseFloat(currentValElement.textContent.replace("$", "").replace(/,/g, "")) || 0;
-      const finalVal = Math.min(totalComm, target);
-      gsap.to(
-        { value: startVal },
-        {
-          value: finalVal,
-          duration: 1.5,
-          ease: "power2.out",
-          onUpdate: function () { if (currentValElement) currentValElement.textContent = `$${Math.floor(this.vars.value).toLocaleString()}`; },
-          onComplete: function () { if (currentValElement) currentValElement.textContent = `$${finalVal.toLocaleString()}`; },
-        }
-      );
-      if (totalComm >= target) {
-        card.classList.remove("locked");
-        card.classList.add("unlocked");
-        gsap.to(card, { scale: 1.02, duration: 0.5, ease: "back.out(1.7)", boxShadow: "0 0 30px rgba(138, 43, 226, 0.4)" });
-      } else {
-        card.classList.remove("unlocked");
-        card.classList.add("locked");
-        gsap.to(card, { scale: 1, duration: 0.5, ease: "power2.out" });
-      }
-    });
-  }
-
-  function initSmartLinkBuilder() {
-    if (els.generateLinkBtn) {
-      els.generateLinkBtn.addEventListener("click", () => {
-        const baseUrl = document.getElementById("targetPage");
-        if (!baseUrl) return;
-        const tag = document.getElementById("campaignTag") ? document.getElementById("campaignTag").value.trim() : "";
-        let partnerId = "PARTNER";
-        if (els.pName && els.pName.textContent !== "Partner") {
-          partnerId = els.pName.textContent;
-        } else {
-          try {
-            const refText = els.refLink.textContent;
-            if (refText.includes("=")) partnerId = refText.split("=")[1];
-          } catch (e) {}
-        }
-        let finalUrl = `${baseUrl.value}?ref=${partnerId}`;
-        if (tag) finalUrl += `&camp=${tag}`;
-        if (els.smartLinkOutput && els.resultContainer) {
-          els.smartLinkOutput.textContent = finalUrl;
-          els.resultContainer.style.display = "block";
-          if (typeof gsap !== "undefined") gsap.from(els.resultContainer, { y: -10, opacity: 0, duration: 0.4 });
-        }
-      });
-    }
-    if (els.copySmartLinkBtn) {
-      els.copySmartLinkBtn.addEventListener("click", () => {
-        const text = els.smartLinkOutput.textContent;
-        navigator.clipboard.writeText(text).then(() => {
-          const originalText = els.copySmartLinkBtn.textContent;
-          els.copySmartLinkBtn.textContent = "Copied!";
-          els.copySmartLinkBtn.style.background = "#10B981";
-          els.copySmartLinkBtn.style.color = "white";
-          setTimeout(() => {
-            els.copySmartLinkBtn.textContent = originalText;
-            els.copySmartLinkBtn.style.background = "";
-            els.copySmartLinkBtn.style.color = "";
-          }, 2000);
-        });
-      });
-    }
-  }
-
-  function initOrganicFeed() {
-    if (!els.feedTrack) return;
-    const firstNames = ["James", "Mary", "Robert", "Patricia", "John", "Jennifer", "Michael", "Linda", "David", "Elizabeth", "William", "Barbara", "Richard", "Susan", "Joseph", "Jessica", "Thomas", "Sarah", "Charles", "Karen", "Christopher", "Lisa", "Daniel", "Nancy"];
-    const lastInitials = ["H.", "S.", "B.", "M.", "W.", "K.", "C.", "P.", "R.", "D."];
-    const locations = ["North America", "Europe", "Asia Pacific", "Western Europe", "South America", "Australia", "Eastern Europe", "Northern America"];
-    const actions = [
-      { type: "sale", text: "generated a new commission", amount: "$100", icon: "fa-dollar-sign" },
-      { type: "sale", text: "generated a new commission", amount: "$150", icon: "fa-dollar-sign" },
-      { type: "sale", text: "generated a new commission", amount: "$200", icon: "fa-dollar-sign" },
-      { type: "join", text: "joined the partner network", amount: "", icon: "fa-user-plus" },
-      { type: "milestone", text: "reached Silver Status", amount: "", icon: "fa-trophy" },
-    ];
-    function createFeedItem() {
-      const fName = firstNames[Math.floor(Math.random() * firstNames.length)];
-      const lInit = lastInitials[Math.floor(Math.random() * lastInitials.length)];
-      const fullName = `${fName} ${lInit}`;
-      const action = actions[Math.floor(Math.random() * actions.length)];
-      const loc = locations[Math.floor(Math.random() * locations.length)];
-      let detailHtml = "";
-      let iconClass = "";
-      if (action.type === "sale") {
-        detailHtml = `<span style="color:#A45EFF; font-weight:700; text-shadow:0 0 10px rgba(164, 94, 255, 0.3);">${action.amount}</span>`;
-        iconClass = "sale";
-      } else if (action.type === "join") {
-        iconClass = "join";
-        detailHtml = "";
-      } else {
-        iconClass = "sale";
-        detailHtml = "";
-      }
-      const item = document.createElement("div");
-      item.className = "feed-item";
-      item.innerHTML = `
-        <div class="feed-icon ${iconClass}"><i class="fas ${action.icon}"></i></div>
-        <div class="feed-info">
-          <span class="feed-text"><strong>${fullName}</strong> ${action.text} ${detailHtml}</span>
-          <span class="feed-meta">Active in ${loc}</span>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <link rel="stylesheet" href="/assets/css/psp.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+      async
+      defer
+    ></script>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/assets/imgs/favicon-16x16.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/assets/imgs/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="48x48"
+      href="/assets/imgs/favicon-48x48.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/assets/imgs/apple-touch-icon.png"
+    />
+    <link rel="manifest" href="/manifest.json" />
+    <meta
+      name="robots"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    />
+  </head>
+  <body>
+    <div class="custom-cursor"></div>
+    <header class="main-header" id="header">
+      <a href="/" class="logo"
+        ><img
+          src="/assets/imgs/optiline-logo.webp"
+          width="150"
+          height="25"
+          alt="OPTILINE Logo"
+      /></a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/portfolio/">Portfolio</a></li>
+          <li><a href="/pricing/">Pricing</a></li>
+          <li><a href="/contact/">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="hamburger">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </div>
+    </header>
+    <main class="psp-container">
+      <div class="psp-glow-fixed"></div>
+      <div class="hero-floating-dots">
+        <div
+          class="dot"
+          style="
+            left: 10%;
+            top: 20%;
+            width: 15px;
+            height: 15px;
+            animation-duration: 5s;
+          "
+        ></div>
+        <div
+          class="dot"
+          style="
+            left: 80%;
+            top: 10%;
+            width: 20px;
+            height: 20px;
+            animation-duration: 7s;
+          "
+        ></div>
+        <div
+          class="dot"
+          style="
+            left: 40%;
+            top: 70%;
+            width: 10px;
+            height: 10px;
+            animation-duration: 4s;
+          "
+        ></div>
+        <div
+          class="dot"
+          style="
+            left: 70%;
+            top: 60%;
+            width: 25px;
+            height: 25px;
+            animation-duration: 6s;
+          "
+        ></div>
+        <div
+          class="dot"
+          style="
+            left: 25%;
+            top: 5%;
+            width: 12px;
+            height: 12px;
+            animation-duration: 8s;
+          "
+        ></div>
+        <div
+          class="dot"
+          style="
+            left: 90%;
+            top: 85%;
+            width: 18px;
+            height: 18px;
+            animation-duration: 5.5s;
+          "
+        ></div>
+        <div
+          class="dot"
+          style="
+            left: 5%;
+            top: 90%;
+            width: 14px;
+            height: 14px;
+            animation-duration: 6.5s;
+          "
+        ></div>
+      </div>
+      <section id="loginStage" class="psp-section active">
+        <div class="container psp-hero-layout">
+          <div class="psp-hero-text anim-group">
+            <h1 class="psp-title glow-text">Partner Success Program</h1>
+            <p class="psp-subtitle">
+              Drive revenue and impact with a partner ecosystem designed for
+              performance marketers and B2B growth strategists. Scale with
+              precision attribution and high-value rewards.
+            </p>
+            <div class="hero-spacing"></div>
+            <div class="psp-pillars">
+              <span><i class="fas fa-check"></i> Performance Rewards</span>
+              <span><i class="fas fa-check"></i> Strategic Attribution</span>
+              <span><i class="fas fa-check"></i> Growth Partnership</span>
+            </div>
+            <div class="cta-wrapper-hero" style="margin-top: 2rem">
+              <a href="#enrollment" class="unified-button">Join the Network</a>
+            </div>
+          </div>
+          <div class="login-card anim-group">
+            <div class="card-header">
+              <i class="fas fa-fingerprint login-icon"></i>
+              <h3>Partner Portal Access</h3>
+              <p class="card-subtitle psp-sub-phrase">
+                Secure gateway to your performance dashboard and exclusive
+                resources.
+              </p>
+            </div>
+            <div class="login-form">
+              <div class="input-wrapper">
+                <i class="fas fa-user"></i>
+                <input
+                  type="text"
+                  id="pid"
+                  placeholder="Partner ID"
+                  autocomplete="off"
+                />
+              </div>
+              <div class="input-wrapper">
+                <i class="fas fa-lock"></i>
+                <input
+                  type="password"
+                  id="ppass"
+                  placeholder="Access Key"
+                  autocomplete="off"
+                />
+                <i
+                  class="fas fa-eye-slash"
+                  id="togglePassword"
+                  style="
+                    position: absolute;
+                    right: 15px;
+                    left: auto;
+                    cursor: pointer;
+                    color: var(--text-gray);
+                    transition: color 0.3s;
+                    z-index: 10;
+                  "
+                ></i>
+              </div>
+              <button id="authBtn" class="unified-button">
+                <span class="btn-txt">Access Dashboard</span>
+                <i class="fas fa-arrow-right"></i>
+              </button>
+              <p id="authError" class="error-msg"></p>
+            </div>
+          </div>
         </div>
-      `;
-      els.feedTrack.prepend(item);
-      setTimeout(() => item.classList.add("show"), 100);
-      if (els.feedTrack.children.length > 4) {
-        const lastItem = els.feedTrack.lastElementChild;
-        lastItem.style.opacity = "0";
-        setTimeout(() => lastItem.remove(), 600);
-      }
-    }
-    function organicLoop() {
-      const randTime = Math.floor(Math.random() * 47000) + 8000;
-      setTimeout(() => {
-        if (Math.random() > 0.2) createFeedItem();
-        organicLoop();
-      }, randTime);
-    }
-    setTimeout(createFeedItem, 2000);
-    organicLoop();
-  }
+        <section class="toolkit-section-public section">
+          <div class="container">
+            <div class="section-title anim-group">
+              <h2 class="glow-text">Premium Partner Toolkit</h2>
+              <p class="psp-sub-phrase">
+                We equip you with enterprise-grade tools to ensure your success
+                from day one.
+              </p>
+            </div>
+            <div class="toolkit-grid">
+              <div class="tool-card anim-group">
+                <div class="tool-icon"><i class="fas fa-chart-line"></i></div>
+                <h5>Advanced Analytics</h5>
+                <p>
+                  Precise real-time tracking for every click and conversion with
+                  detailed performance reporting.
+                </p>
+              </div>
+              <div class="tool-card anim-group">
+                <div class="tool-icon"><i class="fas fa-brain"></i></div>
+                <h5>AI-Driven Optimization</h5>
+                <p>
+                  Leverage advanced machine learning algorithms to automatically
+                  refine your targeting and boost conversion rates.
+                </p>
+              </div>
+              <div class="tool-card anim-group">
+                <div class="tool-icon"><i class="fas fa-headset"></i></div>
+                <h5>Priority Support</h5>
+                <p>
+                  Direct line to a dedicated account manager to assist in
+                  scaling your marketing strategies.
+                </p>
+              </div>
+              <div class="tool-card anim-group">
+                <div class="tool-icon"><i class="fas fa-bullseye"></i></div>
+                <h5>Precision Targeting</h5>
+                <p>
+                  Direct high-intent B2B traffic to specific solution pages
+                  using custom-weighted attribution links designed for
+                  conversion.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="commission-section section section-dark">
+          <div class="container">
+            <div class="section-title anim-group">
+              <h2 class="glow-text">High-Tier Commission Structure</h2>
+              <p class="psp-sub-phrase">
+                Earn high-value rewards with long-term growth potential through
+                qualified B2B conversions and strategic growth collaboration.
+              </p>
+            </div>
+            <div class="commission-grid stats-grid">
+              <div class="stat-card anim-group">
+                <span class="stat-label">Core Package</span>
+                <span class="stat-value">$100</span>
+                <p class="stat-description">For every successful referral</p>
+              </div>
+              <div class="stat-card anim-group">
+                <span class="stat-label">Nexus Package</span>
+                <span class="stat-value">$150</span>
+                <p class="stat-description">Earned per verified sale</p>
+              </div>
+              <div class="stat-card anim-group">
+                <span class="stat-label">Matrix Package</span>
+                <span class="stat-value">$200</span>
+                <p class="stat-description">Per qualified conversion</p>
+              </div>
+            </div>
+            <div class="commission-info-card anim-group">
+              <div class="info-card-content">
+                <i class="fas fa-info-circle info-icon"></i>
+                <p class="info-text">
+                  Standard performance commissions are processed automatically.
+                  <span class="highlight-text"
+                    >Strategic B2B partners driving high-LTV clients may apply
+                    for custom retainer agreements after the first 5
+                    conversions.</span
+                  >
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="enrollment" class="enrollment-section section">
+          <div class="container">
+            <div class="section-title anim-group">
+              <h2 class="glow-text">Join the PSP Partner Network</h2>
+              <p class="psp-sub-phrase">
+                Ready to scale? Complete the application form below to begin
+                your journey with OPTILINE.
+              </p>
+            </div>
+            <div class="enrollment-form-wide anim-group" id="enrollContainer">
+              <form id="enrollForm">
+                <div style="display: none">
+                  <input
+                    type="text"
+                    name="hp_field"
+                    tabindex="-1"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="input-row">
+                  <div class="input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input
+                      type="text"
+                      name="name"
+                      id="partnerName"
+                      required
+                      placeholder="Full Name"
+                      autocomplete="name"
+                      minlength="3"
+                    />
+                  </div>
+                  <div class="input-wrapper">
+                    <i class="fas fa-phone"></i>
+                    <input
+                      type="tel"
+                      name="phone"
+                      id="partnerPhone"
+                      required
+                      placeholder="Phone Number (e.g.+1,+44...)"
+                      title="Please include your country code (e.g., +1, +44, ...)"
+                      oninput="this.value = this.value.replace(/[^0-9+]/g, '')"
+                      autocomplete="tel"
+                    />
+                  </div>
+                </div>
+                <div class="input-wrapper">
+                  <i class="fas fa-envelope"></i>
+                  <input
+                    type="email"
+                    name="email"
+                    id="partnerEmail"
+                    required
+                    placeholder="Work Email"
+                    autocomplete="email"
+                  />
+                </div>
+                <div class="input-wrapper">
+                  <i class="fas fa-link"></i>
+                  <input
+                    type="url"
+                    name="social"
+                    id="partnerSocial"
+                    required
+                    placeholder="LinkedIn, Website, or Social Profile URL"
+                    pattern="https?://.+"
+                    title="Please enter a valid URL starting with http:// or https://"
+                  />
+                </div>
+                <div class="input-wrapper">
+                  <i class="fas fa-comment-alt"></i>
+                  <textarea
+                    name="message"
+                    id="partnerMessage"
+                    rows="4"
+                    required
+                    placeholder="Tell us about your approach: Are you a performance marketer or a B2B strategist? How do you plan to position OPTILINE to your audience without using spam techniques?"
+                  ></textarea>
+                  <div id="msgStrengthContainer" style="margin-top: 10px">
+                    <div
+                      style="
+                        height: 5px;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 3px;
+                        overflow: hidden;
+                      "
+                    >
+                      <div
+                        id="msgStrengthBar"
+                        style="
+                          width: 0%;
+                          height: 100%;
+                          background: #ff4d4d;
+                          transition: all 0.3s;
+                        "
+                      ></div>
+                    </div>
+                    <small
+                      id="msgStrengthText"
+                      style="
+                        color: var(--text-gray);
+                        font-size: 0.8rem;
+                        margin-top: 5px;
+                        display: block;
+                      "
+                      >Message strength: Too short</small
+                    >
+                  </div>
+                </div>
+                <div
+                  class="input-wrapper"
+                  style="
+                    display: flex;
+                    justify-content: flex-start;
+                    margin-bottom: 20px;
+                  "
+                >
+                  <div
+                    class="cf-turnstile"
+                    data-sitekey="0x4AAAAAACWFMZ8Z2H7nE89Y"
+                    data-theme="dark"
+                  ></div>
+                </div>
+                <div
+                  id="formFeedback"
+                  class="form-feedback error-msg"
+                  style="display: none; margin-bottom: 15px"
+                ></div>
+                <button type="submit" id="enrollSubmit" class="unified-button">
+                  Submit Application <i class="fas fa-paper-plane"></i>
+                </button>
+              </form>
+              <div
+                id="enrollSuccess"
+                class="success-message"
+                style="display: none; text-align: center"
+              >
+                <div class="success-icon">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="glow-text">Application Received</h3>
+                <p class="psp-sub-phrase">
+                  Thank you,
+                  <span
+                    id="successName"
+                    class="user-name"
+                    style="color: var(--accent-light); font-weight: 700"
+                    >Partner</span
+                  >
+                </p>
+                <p style="color: var(--text-gray)">
+                  We have successfully received your application details. Our
+                  team will carefully review the submitted information, and you
+                  will be contacted shortly via email or phone should any
+                  further steps be required.
+                </p>
+                <button
+                  id="resetFormBtn"
+                  class="unified-button outline-btn"
+                  style="margin-top: 20px"
+                  onclick="window.location.href = '/'"
+                >
+                  Return to Home
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
 
-  function updateAIInsights(txs) {
-    const aiForecast = document.getElementById("aiForecast");
-    const aiVelocity = document.getElementById("aiVelocity");
-    const aiVelocityText = document.getElementById("aiVelocityText");
-    const aiAdvice = document.getElementById("aiAdvice");
-    if (!aiForecast) return;
+        <section class="section" id="psp-faq">
+          <div class="container">
+            <div class="section-title anim-group">
+              <h2 class="glow-text">Frequently Asked Questions</h2>
+              <p class="psp-sub-phrase">
+                Common questions about our ecosystem, payouts, and partnership
+                models.
+              </p>
+            </div>
 
-    if (txs.length === 0) {
-      aiForecast.innerHTML = '<span style="color: #444;">$0.00</span>';
-      aiVelocity.innerHTML = '<span style="color: #444;">0%</span>';
-      if (aiVelocityText) { aiVelocityText.textContent = "System Standby"; aiVelocityText.style.color = "#555"; }
-      if (aiAdvice) { aiAdvice.textContent = "System active. Waiting for initial transaction data to generate predictive strategy."; aiAdvice.style.color = "#777"; aiAdvice.style.fontStyle = "italic"; }
-      return;
-    }
+            <div class="faq-accordion anim-group">
+              <div class="faq-item">
+                <button class="faq-question">
+                  Is this program for influencers or B2B agencies?
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  <p>
+                    <strong>Both.</strong> We operate a dual-track ecosystem.
+                    "Performance Partners" (Influencers/Affiliates) earn fixed
+                    commissions per sale. "Growth Partners"
+                    (Agencies/Consultants) can qualify for custom retainer
+                    agreements and revenue sharing after demonstrating
+                    high-quality lead consistency.
+                  </p>
+                </div>
+              </div>
 
-    const totalComm = txs.reduce((sum, tx) => sum + (parseFloat(tx.commission) || 0), 0);
-    const date = new Date();
-    const dayOfMonth = date.getDate();
-    const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-    let projected = 0;
-    if (totalComm > 0 && dayOfMonth > 0) projected = (totalComm / dayOfMonth) * daysInMonth;
-    
-    animateVal(aiForecast, Math.floor(projected), "$");
-    let velocityScore = 0;
-    let velocityMsg = "Gathering more data...";
-    if (txs.length >= 2) {
-      const recentAvg = (parseFloat(txs[0].commission) + parseFloat(txs[1].commission)) / 2;
-      const overallAvg = totalComm / txs.length;
-      const change = ((recentAvg - overallAvg) / overallAvg) * 100;
-      velocityScore = Math.floor(change);
-      if (velocityScore > 0) {
-        velocityMsg = "Trending Upwards 🚀";
-        aiVelocity.style.color = "#A45EFF";
-      } else {
-        velocityMsg = "Cooling Down ❄️";
-        aiVelocity.style.color = "#a569f5";
-      }
-    } else {
-      velocityScore = 0;
-      velocityMsg = "Gathering data...";
-    }
-    aiVelocity.textContent = (velocityScore > 0 ? "+" : "") + velocityScore + "%";
-    if (aiVelocityText) aiVelocityText.textContent = velocityMsg;
-    
-    let advice = "";
-    const matrixCount = txs.filter((t) => t.package === "Matrix").length;
-    if (matrixCount === 0 && txs.length > 3) {
-      advice = "Detected high volume of basic tiers. OPPORTUNITY: Upsell 'Matrix' package to increase margins by 40%. Target senior clients.";
-    } else if (velocityScore < -10) {
-      advice = "Velocity drop detected. Engagement metrics are cooling. Suggested action: Refresh your creative assets or re-post high-performing content.";
-    } else if (projected > 5000) {
-      advice = "Excellent momentum! You are on track to hit 'Gold Tier' this month. Maintain current consistency to unlock the bonus multiplier.";
-    } else {
-      advice = "Traffic quality is stable. Analyzing conversion rates... Suggest focusing on 'Nexus' package for optimal conversion-to-revenue ratio.";
-    }
-    if (aiAdvice) {
-      aiAdvice.textContent = "";
-      let i = 0;
-      const typeWriter = () => {
-        if (i < advice.length) {
-          aiAdvice.textContent += advice.charAt(i);
-          i++;
-          setTimeout(typeWriter, 30);
-        }
-      };
-      typeWriter();
-    }
-  }
-});
+              <div class="faq-item">
+                <button class="faq-question">
+                  How does the "Strategic Partner" qualification work?
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  <p>
+                    We value quality over quantity. Once you drive
+                    <strong>5 verified conversions</strong>
+                    that demonstrate high Client Lifetime Value (LTV), your
+                    account manager will invite you to discuss a custom
+                    strategic agreement with enhanced terms.
+                  </p>
+                </div>
+              </div>
 
-const messageInput = document.getElementById("partnerMessage");
-const strengthBar = document.getElementById("msgStrengthBar");
-const strengthText = document.getElementById("msgStrengthText");
-if (messageInput && strengthBar) {
-  messageInput.addEventListener("input", () => {
-    const val = messageInput.value.length;
-    let width = "0%",
-      color = "#ff4d4d",
-      txt = "Too short";
-    if (val > 20) { width = "40%"; color = "#F59E0B"; txt = "Weak"; }
-    if (val > 50) { width = "70%"; color = "#6366F1"; txt = "Good"; }
-    if (val > 100) { width = "100%"; color = "#10B981"; txt = "Strong!"; }
-    strengthBar.style.width = width;
-    strengthBar.style.background = color;
-    strengthText.textContent = "Message strength: " + txt;
-  });
-}
+              <div class="faq-item">
+                <button class="faq-question">
+                  What attribution logic do you use?
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  <p>
+                    We use a <strong>60-day sticky cookie</strong> combined with
+                    "Last-Click" attribution. However, for B2B partners, we can
+                    manually map specific corporate leads to your ID to ensure
+                    you get credit even if cookies are cleared.
+                  </p>
+                </div>
+              </div>
 
-const inputsToSave = ["partnerName", "partnerPhone", "partnerEmail", "partnerSocial", "partnerMessage"];
-inputsToSave.forEach((id) => {
-  const savedVal = localStorage.getItem(id);
-  if (savedVal && document.getElementById(id)) document.getElementById(id).value = savedVal;
-});
+              <div class="faq-item">
+                <button class="faq-question">
+                  Are payouts automated?
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  <p>
+                    Yes. Payouts are processed upon request once the $100
+                    threshold is met. We support PayPal for fiat currencies and
+                    USDT (TRC20) for crypto partners, ensuring global liquidity.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-inputsToSave.forEach((id) => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener("input", () => localStorage.setItem(id, el.value));
-});
+        <section class="section">
+          <div class="container">
+            <div class="psp-policy-section" id="policySection">
+              <button
+                class="comparison-question"
+                id="policyToggle"
+                type="button"
+              >
+                PSP TERMS & CONDITIONS
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="comparison-answer">
+                <div class="policy-body">
+                  <div class="policy-item">
+                    <h3>1. COMMISSION DISBURSEMENT & INTEGRITY</h3>
+                    <p>
+                      At OPTILINE, we are committed to partner profitability.
+                      The agency absorbs all standard PayPal-to-PayPal
+                      transaction fees to ensure you receive your full net
+                      commission ($100, $150, or $200) without deductions.
+                    </p>
+                  </div>
+                  <div class="policy-item">
+                    <h3>2. TRANSACTIONAL GATEWAY SYNERGY</h3>
+                    <p>
+                      To maintain instantaneous liquidity and security, payouts
+                      are strictly matched to the client's source of funds.
+                      Traditional payments (Credit/Debit/PayPal) are settled via
+                      PayPal, while Cryptocurrency payments are settled via
+                      USDT.
+                    </p>
+                  </div>
+                  <div class="policy-item">
+                    <h3>3. CURRENCY CONVERSION & MITIGATION</h3>
+                    <p>
+                      Cross-platform payout requests (e.g., requesting USDT for
+                      a PayPal-funded sale) are treated as manual exchanges.
+                      Such requests incur a 10% conversion & administrative fee
+                      and require a 24-48 hour security verification window.
+                    </p>
+                  </div>
+                  <div class="policy-item">
+                    <h3>4. ATTRIBUTION & PERSISTENT COOKIES</h3>
+                    <p>
+                      Our ecosystem utilizes high-precision attribution tracking
+                      with a 60-day persistent cookie. If a referred lead
+                      converts within 60 days of their initial visit, the
+                      commission is automatically and permanently attributed to
+                      your Partner ID.
+                    </p>
+                  </div>
+                  <div class="policy-item">
+                    <h3>5. COMPLIANCE & BRAND REPRESENTATION</h3>
+                    <p>
+                      Partners must adhere to ethical marketing standards.
+                      Prohibited activities include spamming, unauthorized
+                      automated outreach, or deceptive claims. Non-compliance
+                      results in immediate revocation of partner status and
+                      forfeiture of pending balances.
+                    </p>
+                  </div>
+                  <div class="policy-item">
+                    <h3>6. INTERNAL TRANSACTION MITIGATION</h3>
+                    <p>
+                      To prevent system exploitation, "Self-Referrals"
+                      (purchasing services for personal use via one's own
+                      partner link) are strictly prohibited. Our AI-driven audit
+                      system monitors for IP and identity overlaps to ensure
+                      ecosystem fairness.
+                    </p>
+                  </div>
+                  <div class="policy-item">
+                    <h3>7. OPERATIONAL DISBURSEMENT THRESHOLD</h3>
+                    <p>
+                      To optimize accounting efficiency, the minimum
+                      disbursement threshold is $100. This ensures that even a
+                      single CORE package conversion triggers a payout,
+                      maintaining high cash-flow velocity for our partners.
+                    </p>
+                  </div>
+                  <div class="policy-item">
+                    <h3>8. TRANSPARENCY & VERIFICATION RIGHTS</h3>
+                    <p>
+                      Every sale is logged with a unique Transaction ID (Tx ID)
+                      in our Verified Sales ledger. OPTILINE reserves the right
+                      to hold commissions for up to 7 days in cases of suspected
+                      high-risk activity to perform a manual security audit.
+                    </p>
+                  </div>
+                  <div class="policy-item">
+                    <p>
+                      <em
+                        >OPTILINE reserves the right to amend these terms to
+                        reflect changes in global financial regulations or
+                        platform updates.</em
+                      >
+                    </p>
+                  </div>
+                </div>
+                <button
+                  class="close-policy-btn"
+                  id="closePolicyBtn"
+                  type="button"
+                >
+                  <i class="fas fa-chevron-up"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
 
-document.addEventListener("DOMContentLoaded", function () {
-  const toggleBtn = document.getElementById("policyToggle");
-  const closeBtn = document.getElementById("closePolicyBtn");
-  const section = document.getElementById("policySection");
+        <section class="section">
+          <div class="container">
+            <div class="cta-wrapper anim-group psp-faq-cta">
+              <h2 class="glow-text">Ready to Scale Your Revenue?</h2>
+              <p class="psp-sub-phrase">
+                Join the elite network of partners transforming their traffic
+                into recurring income today.
+              </p>
+              <a href="#enrollment" class="unified-button">
+                BECOME A PARTNER <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </section>
+      </section>
 
-  if (toggleBtn && section) {
-    toggleBtn.onclick = function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      section.classList.toggle("active");
-    };
-  }
+      <section id="dashStage" class="psp-section hidden">
+        <div class="container">
+          <div class="dash-header anim-dash">
+            <div class="user-welcome">
+              <span class="welcome-label">Welcome To Your PSP Dashboard</span>
+              <h2 id="pName">Partner</h2>
+              <span class="status-pill"
+                ><i class="fas fa-check-circle"></i> Verified Partner</span
+              >
+            </div>
+            <div class="dash-actions">
+              <button
+                id="withdrawRequestBtn"
+                class="unified-button outline-btn btn-small"
+              >
+                <i class="fas fa-hand-holding-usd"></i> Request Withdrawal
+              </button>
+              <button id="logoutBtn" class="unified-button btn-small">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </button>
+            </div>
+          </div>
+          <div class="referral-box anim-dash">
+            <label class="referral-label">Your Exclusive Referral Link</label>
+            <div class="link-wrapper">
+              <code id="refLink">Loading...</code>
+              <button id="copyBtn" class="copy-btn">Copy Link</button>
+            </div>
+          </div>
+          <div class="stats-grid anim-dash">
+            <div class="stat-card">
+              <span class="stat-label">Available Balance</span>
+              <span class="stat-value" id="valAvail" style="color:var(--accent-light);">$0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Total Earnings</span>
+              <span class="stat-value" id="valComm">$0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Total Conversions</span>
+              <span class="stat-value" id="valSales">0</span>
+            </div>
+          </div>
+          <div class="charts-grid anim-dash">
+            <div class="chart-container">
+              <h4 class="chart-title glow-text">
+                <i class="fas fa-chart-pie"></i> Package Distribution
+              </h4>
+              <div class="chart-wrapper">
+                <canvas id="packageChart"></canvas>
+              </div>
+            </div>
+            <div class="chart-container">
+              <h4 class="chart-title glow-text">
+                <i class="fas fa-chart-bar"></i> Earnings Trend Analysis
+              </h4>
+              <div class="chart-wrapper">
+                <canvas id="earningsTrendChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <section class="milestones-section anim-dash">
+            <div class="milestones-header">
+              <h2 class="glow-text left-align">
+                <i class="fas fa-medal"></i> Growth Milestones
+              </h2>
+              <p class="psp-sub-phrase">
+                Track your progress and unlock new tiers of partnership
+                benefits.
+              </p>
+            </div>
+            <div class="milestones-grid">
+              <div class="milestone-card locked" data-target="1000">
+                <i class="fas fa-trophy m-icon"></i>
+                <h4 class="m-title">Bronze Tier</h4>
+                <p class="m-description">Achieve $1,000 in commissions.</p>
+                <div class="m-progress">
+                  <div class="m-fill" style="width: 0%"></div>
+                </div>
+                <span class="m-status"
+                  >Progress: <span class="m-current-val">$0</span> / $1000</span
+                >
+              </div>
+              <div class="milestone-card locked" data-target="5000">
+                <i class="fas fa-gem m-icon"></i>
+                <h4 class="m-title">Silver Tier</h4>
+                <p class="m-description">Achieve $5,000 in commissions.</p>
+                <div class="m-progress">
+                  <div class="m-fill" style="width: 0%"></div>
+                </div>
+                <span class="m-status"
+                  >Progress: <span class="m-current-val">$0</span> / $5000</span
+                >
+              </div>
+              <div class="milestone-card locked" data-target="10000">
+                <i class="fas fa-crown m-icon"></i>
+                <h4 class="m-title">Gold Tier</h4>
+                <p class="m-description">Achieve $10,000 in commissions.</p>
+                <div class="m-progress">
+                  <div class="m-fill" style="width: 0%"></div>
+                </div>
+                <span class="m-status"
+                  >Progress: <span class="m-current-val">$0</span> /
+                  $10000</span
+                >
+              </div>
+            </div>
+          </section>
+                     <div class="data-panel anim-dash">
+            <div class="panel-header">
+              <div class="panel-header-top">
+                <h4 class="panel-title glow-text left-align">
+                  <i class="fas fa-list-ul"></i> Real-Time Transaction Ledger
+                </h4>
+                <div class="export-buttons">
+                  <select id="txFilter" class="export-btn" style="background: #2a1051; color: #a45eff; border: 1px solid #381857; cursor: pointer; padding-right: 10px;">
+                    <option value="all" style="background: #2a1051; color: #a45eff;">All History</option>
+                    <option value="7" style="background: #2a1051; color: #a45eff;">Last 7 Days</option>
+                    <option value="15" style="background: #2a1051; color: #a45eff;">Last 15 Days</option>
+                    <option value="30" style="background: #2a1051; color: #a45eff;">Last 30 Days</option>
+                    <option value="90" style="background: #2a1051; color: #a45eff;">Last 3 Months</option>
+                    <option value="180" style="background: #2a1051; color: #a45eff;">Last 6 Months</option>
+                    <option value="365" style="background: #2a1051; color: #a45eff;">Last Year</option>
+                  </select>
+                  <button id="exportCSV" class="export-btn"><i class="fas fa-file-csv"></i> CSV</button>
+                  <button id="exportExcel" class="export-btn"><i class="fas fa-file-excel"></i> Excel</button>
+                  <button id="exportPDF" class="export-btn"><i class="fas fa-file-pdf"></i> PDF</button>
+                </div>
+              </div>
+              <p class="psp-sub-phrase">Detailed record of all qualified conversions and commission payouts.</p>
+            </div>
 
-  if (closeBtn && section) {
-    closeBtn.onclick = function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      section.classList.remove("active");
-      setTimeout(function () {
-        const headerOffset = 100;
-        const elementPosition = section.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-      }, 600);
-    };
-  }
+            <div id="txTableContainer" class="table-collapsible-container" style="position: relative; overflow: hidden; transition: max-height 0.5s ease-in-out;">
+              <div class="table-responsive-wrapper">
+                <table class="psp-table" id="transactionTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Package</th>
+                      <th>Ref ID</th>
+                      <th>Commission</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody">
+                    <tr>
+                      <td colspan="5" class="empty-state" id="emptyState">No transactions recorded yet. Start sharing your link!</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div id="txTableFade" class="table-fade-overlay" style="display: none;"></div>
+            </div>
 
-  const secureBtns = document.querySelectorAll('.secure-dl-btn');
-  secureBtns.forEach(btn => {
-    btn.dataset.originalHtml = btn.innerHTML;
-    btn.addEventListener('click', function(e) {
-      if (!this.classList.contains('confirm-ready')) {
-        e.preventDefault();
-        this.classList.add('confirm-ready');
-        if (typeof gsap !== "undefined") {
-          gsap.to(this, {
-            scale: 0.92, opacity: 0.7, duration: 0.1,
-            onComplete: () => {
-              this.innerHTML = '<i class="fas fa-check-double"></i> Click Again';
-              this.style.background = '#5a189a';
-              gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
-            }
-          });
-        } else {
-          this.innerHTML = '<i class="fas fa-check-double"></i> Click Again';
-          this.style.background = '#5a189a';
-        }
-        clearTimeout(this.resetTimer);
-        this.resetTimer = setTimeout(() => {
-          this.classList.remove('confirm-ready');
-          if (typeof gsap !== "undefined") {
-            gsap.to(this, {
-              scale: 0.92, opacity: 0.7, duration: 0.1,
-              onComplete: () => {
-                this.innerHTML = this.dataset.originalHtml;
-                this.style.background = '';
-                gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
-              }
-            });
-          } else {
-            this.innerHTML = this.dataset.originalHtml;
-            this.style.background = '';
-          }
-        }, 2000);
-      } else {
-        clearTimeout(this.resetTimer);
-        setTimeout(() => {
-          this.classList.remove('confirm-ready');
-          this.innerHTML = this.dataset.originalHtml;
-          this.style.background = '';
-        }, 300);
-      }
-    });
-  });
-});
+            <div style="text-align: center; margin-top: 1rem;">
+              <button id="toggleTxTableBtn" class="unified-button outline-btn toggle-table-btn" style="display: none;">
+                <i id="txBtnIcon" class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="data-panel anim-dash" style="margin-top: 3rem;">
+            <div class="panel-header">
+              <h4 class="panel-title glow-text left-align"><i class="fas fa-money-check-alt"></i> Withdrawal History</h4>
+              <p class="psp-sub-phrase">Record of all your withdrawal requests and their status.</p>
+            </div>
+
+            <div id="withdrawTableContainer" class="table-collapsible-container" style="position: relative; overflow: hidden; transition: max-height 0.5s ease-in-out;">
+    <div class="table-responsive-wrapper">
+        <table class="psp-table" id="withdrawTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="withdrawTableBody">
+                <tr>
+                    <td colspan="4" class="empty-state">No withdrawals requested yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="withdrawTableFade" class="table-fade-overlay" style="display: none;"></div>
+</div>
+<div style="text-align: center; margin-top: 1rem;">
+    <button id="toggleWithdrawTableBtn" class="unified-button outline-btn toggle-table-btn" style="display: none;">
+        <i id="withdrawBtnIcon" class="fas fa-chevron-down"></i>
+    </button>
+</div>
+          </div>
+          <div class="builder-section anim-dash">
+            <div class="panel-header">
+              <h4 class="panel-title glow-text left-align">
+                <i class="fas fa-link"></i> Smart Link Builder
+              </h4>
+              <p class="psp-sub-phrase">
+                Generate custom deep links to specific pages for better
+                conversion rates.
+              </p>
+            </div>
+            <div class="builder-card">
+              <div class="builder-row">
+                <div class="builder-group">
+                  <label>Target Page</label>
+                  <select id="targetPage" class="builder-input">
+                    <option value="https://optiline.online/">Home Page</option>
+                    <option value="https://optiline.online/services/">
+                      Services
+                    </option>
+                    <option value="https://optiline.online/portfolio/">
+                      Portfolio
+                    </option>
+                    <option value="https://optiline.online/pricing/">
+                      Pricing
+                    </option>
+                    <option value="https://optiline.online/blog/">Blog</option>
+                  </select>
+                </div>
+                <div class="builder-group">
+                  <label style="display: flex; align-items: center; gap: 8px">
+                    Campaign Tag (Optional)
+                    <div class="tooltip-wrapper">
+                      <i class="fas fa-info-circle info-icon"></i>
+                      <div class="tooltip-box">
+                        <strong class="tt-title">Organizational Label</strong>
+                        <p class="tt-desc">Use this to tag traffic sources.</p>
+                        <p class="tt-ex">Ex: "twitter", "email_blast"</p>
+                      </div>
+                    </div>
+                  </label>
+                  <input
+                    type="text"
+                    id="campaignTag"
+                    class="builder-input"
+                    placeholder="e.g. twitter_ad, summer_promo"
+                  />
+                </div>
+              </div>
+              <div class="builder-actions">
+                <button id="generateLinkBtn" class="unified-button">
+                  Generate Link <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+              <div class="generated-result" id="resultContainer" style="display: none">
+                <label>Your Custom Tracking Link</label>
+                <div class="link-wrapper">
+                  <code id="smartLinkOutput">...</code>
+                  <button id="copySmartLinkBtn" class="copy-btn">Copy</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="toolkit-master-panel anim-dash">
+            <div class="panel-header">
+              <h4 class="panel-title glow-text left-align">
+                <i class="fas fa-folder-open"></i> Strategic Master Toolkit
+              </h4>
+              <p class="psp-sub-phrase">
+                Download your exclusive, high-converting sales assets to dominate the market.
+                <br><span style="color: #a45eff; font-size: 0.85rem; font-weight: 600; margin-top: 8px; display: inline-block;"><i class="fas fa-shield-alt"></i> Security Protocol: Double-tap rapidly on any button to download.</span>
+              </p>
+            </div>
+            
+            <div class="toolkit-docs-grid">
+              <div class="toolkit-doc-card">
+                <div class="doc-card-content">
+                  <div class="doc-icon">
+                    <i class="fas fa-book-open"></i>
+                  </div>
+                  <h4>Manifesto & Pitch Deck</h4>
+                  <p>The ultimate client magnet. An elite presentation engineered to convince CEOs to invest in our ecosystem.</p>
+                </div>
+                <a href="/assets/docs/OPTILINE_Manifesto_PitchDeck.pdf" target="_blank" class="unified-button btn-small secure-dl-btn">
+                  <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
+              </div>
+
+              <div class="toolkit-doc-card">
+                <div class="doc-card-content">
+                  <div class="doc-icon">
+                    <i class="fas fa-bullhorn"></i>
+                  </div>
+                  <h4>Outreach Playbook</h4>
+                  <p>Your strategic guide for LinkedIn authority, X threads, and multi-stage cold email sequences.</p>
+                </div>
+                <a href="/assets/docs/OPTILINE_Outreach_Playbook.pdf" target="_blank" class="unified-button btn-small secure-dl-btn">
+                  <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
+              </div>
+
+              <div class="toolkit-doc-card">
+                <div class="doc-card-content">
+                  <div class="doc-icon">
+                    <i class="fas fa-handshake"></i>
+                  </div>
+                  <h4>Closing Guide</h4>
+                  <p>Advanced objection handling and ROI gap analysis to help you execute and close high-ticket deals.</p>
+                </div>
+                <a href="/assets/docs/OPTILINE_Closing_Guide.pdf" target="_blank" class="unified-button btn-small secure-dl-btn">
+                  <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
+              </div>
+            </div>
+
+            </div>
+          </div>
+          <div class="activity-section anim-dash">
+            <div class="panel-header"> <h4 class="panel-title glow-text left-align">
+                <i class="fas fa-globe-americas"></i> Live Global Activity
+              </h4>
+              <p class="psp-sub-phrase">
+                Real-time pulse of partner success stories worldwide.
+              </p>
+            </div>
+            <div class="feed-widget-box">
+              <div class="feed-header">
+                <div class="live-indicator">
+                  <span class="blink-dot"></span> Network Pulse
+                </div>
+                <div class="world-map-bg"></div>
+              </div>
+              <div class="feed-window">
+                <div class="feed-track" id="feedTrack"></div>
+                <div class="feed-overlay-top"></div>
+                <div class="feed-overlay-bottom"></div>
+              </div>
+            </div>
+          </div>
+          <div class="ai-section anim-dash">
+            <div class="panel-header">
+              <div class="header-with-ai">
+                <h4 class="panel-title glow-text left-align">
+                  <i class="fas fa-brain"></i> OPTILINE AI™ Intelligence
+                </h4>
+                <div class="ai-status">
+                  <span class="pulse-ring"></span>
+                  <span class="ai-text">System Active & Analyzing</span>
+                </div>
+              </div>
+              <p class="psp-sub-phrase">
+                Real-time predictive modeling based on your transaction
+                velocity.
+              </p>
+            </div>
+            <div class="ai-grid">
+              <div class="ai-card forecast-card">
+                <div class="ai-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="ai-content">
+                  <span class="ai-label">Projected EOM Revenue</span>
+                  <h3 id="aiForecast">$0.00</h3>
+                  <p class="ai-sub">Based on current daily velocity</p>
+                </div>
+                <div class="ai-bg-effect"></div>
+              </div>
+              <div class="ai-card velocity-card">
+                <div class="ai-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <div class="ai-content">
+                  <span class="ai-label">Performance Velocity</span>
+                  <h3 id="aiVelocity">0%</h3>
+                  <p class="ai-sub" id="aiVelocityText">Calibrating data...</p>
+                </div>
+              </div>
+              <div class="ai-card advice-card">
+                <div class="ai-header">
+                  <i class="fas fa-robot"></i> <span>Strategic Insight</span>
+                </div>
+                <p id="aiAdvice" class="typing-effect">
+                  Waiting for transaction data to generate strategy...
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="tips-section anim-dash">
+            <div class="tips-header">
+              <h4 class="tip-header glow-text left-align">
+                <i class="fas fa-lightbulb"></i> PSP Insight
+              </h4>
+              <div class="tip-nav">
+                <button id="prevTip" class="tip-nav-btn">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button id="nextTip" class="tip-nav-btn">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+            <p class="psp-sub-phrase">
+              Daily strategic wisdom to fuel your growth.
+            </p>
+            <div class="tip-content-wrapper">
+              <div class="tip-icon">
+                <i class="fas fa-quote-left"></i>
+              </div>
+              <p class="tip-content" id="tipText">
+                Loading motivational insight...
+              </p>
+              <div class="tip-progress">
+                <div class="tip-progress-bar"></div>
+              </div>
+            </div>
+          </div>
+          <div class="help-section anim-dash">
+            <div class="panel-header">
+              <h4 class="panel-title glow-text left-align">
+                <i class="fas fa-headset"></i> Partner Help Center
+              </h4>
+              <p class="psp-sub-phrase">
+                Need assistance? Our support team is here to help you scale your
+                performance.
+              </p>
+            </div>
+            <div class="help-card-inner">
+              <div class="help-row">
+                <div class="help-info-side">
+                  <div class="help-icon-wrapper">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <div class="help-details">
+                    <h5 class="help-label">Direct Email Support</h5>
+                    <p class="help-desc">
+                      Get in touch for technical issues or inquiries.
+                    </p>
+                    <code class="help-email">contact@optiline.online</code>
+                  </div>
+                </div>
+                <div class="help-action-side">
+                  <a
+                    href="mailto:contact@optiline.online?subject=Support%20Request%20-%20Partner"
+                    class="unified-button"
+                  >
+                    Contact Support <i class="fas fa-paper-plane"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="main-footer">
+      <div class="container footer-content">
+        <div class="footer-about">
+          <a href="/" class="logo">
+            <img
+              src="/assets/imgs/optiline-logo.webp"
+              loading="lazy"
+              alt="OPTILINE Agency Logo"
+            />
+          </a>
+          <p>
+            Strategic digital growth assets engineered for clarity, performance,
+            and market leadership.
+          </p>
+        </div>
+        <div class="footer-links">
+          <h4>Explore</h4>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/pricing/">Pricing</a></li>
+            <li><a href="/services/">Services</a></li>
+            <li><a href="/psp/">PSP Network</a></li>
+            <li><a href="/portfolio/">Portfolio</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Agency</h4>
+          <ul>
+            <li><a href="/blog/">Our Blog</a></li>
+            <li><a href="/contact/">Contact Us</a></li>
+            <li><a href="/#process">Our Process</a></li>
+            <li><a href="/privacy/">Privacy Policy</a></li>
+            <li><a href="/careers/">Careers</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>© 2026 OPTILINE. All Rights Reserved.</p>
+      </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/psp.js"></script>
+    <div id="cookie-banner" class="cookie-banner">
+      <div class="cookie-content">
+        <h3><i class="fas fa-user-shield"></i> Privacy Preference Center</h3>
+        <p>
+          We utilize cookies and essential technologies to engineer a seamless
+          digital experience, optimize site performance, and enable core
+          marketing functions. By clicking "Accept", you acknowledge our use of
+          these technologies.
+        </p>
+        <div class="cookie-buttons">
+          <button id="accept-cookies">Accept All</button>
+          <button id="reject-cookies">Decline</button>
+        </div>
+      </div>
+    </div>
+    <button id="scrollTopBtn" title="Top">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+  </body>
+</html>
