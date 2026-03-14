@@ -11,6 +11,12 @@ function initSession() {
     const parsed = JSON.parse(session);
     if (Date.now() - parsed.lastActivity < SESSION_TIMEOUT) {
       document.documentElement.classList.add('is-logged-in');
+      const loginStage = document.getElementById("loginStage");
+      const dashStage = document.getElementById("dashStage");
+      if (loginStage && dashStage) {
+        loginStage.classList.remove("active");
+        dashStage.classList.remove("hidden");
+      }
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     } else {
       localStorage.removeItem(SESSION_KEY);
@@ -652,13 +658,14 @@ document.addEventListener("DOMContentLoaded", () => {
     initSmartLinkBuilder();
     initOrganicFeed();
     updateAIInsights(currentTransactions);
+    initializeTableToggles();
     
     document.documentElement.classList.add('is-logged-in');
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     
     if (isRefresh) {
       if(els.loginStage) els.loginStage.classList.remove("active");
       if(els.dashStage) els.dashStage.classList.remove("hidden");
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
       return;
     }
 
@@ -672,7 +679,7 @@ document.addEventListener("DOMContentLoaded", () => {
         onComplete: () => {
           if(els.loginStage) els.loginStage.classList.remove("active");
           if(els.dashStage) els.dashStage.classList.remove("hidden");
-          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
         },
       }).fromTo(
         ".anim-dash",
@@ -689,55 +696,97 @@ document.addEventListener("DOMContentLoaded", () => {
       if(els.loginStage) els.loginStage.classList.remove("active");
       if(els.dashStage) {
         els.dashStage.classList.remove("hidden");
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
         els.dashStage.classList.add("active");
       }
     }
   }
 
   function renderWithdrawalTable(withdrawals) {
-    const wBody = els.withdrawalTableBody;
-    if (!wBody) return;
-    wBody.innerHTML = "";
-    if (withdrawals.length === 0) {
-      for (let i = 0; i < 3; i++) {
-        const tr = document.createElement("tr");
-        tr.style.opacity = "0.35";
-        tr.style.pointerEvents = "none";
-        tr.innerHTML = `
-          <td style="color: #666; font-family: monospace;">--/--/----</td>
-          <td style="color: #666; font-weight:700">$0.00</td>
-          <td><span class="package-badge" style="background: #2a2a2a; color: #555; border: 1px solid #333;">---</span></td>
-          <td style="text-align: center;"><span style="color: #666; background: rgba(255,255,255,0.05);" class="status-badge">No Data</span></td>
-        `;
-        wBody.appendChild(tr);
-      }
+  const wBody = els.withdrawalTableBody;
+  if (!wBody) return;
+  wBody.innerHTML = "";
+  
+  if (!withdrawals || withdrawals.length === 0) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="4" class="empty-state">No withdrawals requested yet.</td>`;
+    wBody.appendChild(tr);
+    return;
+  }
+  
+  withdrawals.forEach((w) => {
+    const tr = document.createElement("tr");
+    
+    let amount = 0;
+    try {
+      amount = parseFloat(w.amount) || 0;
+    } catch (e) {
+      amount = 0;
+    }
+    
+    let status = w.status || "Pending";
+    if (status === "Paid") status = "Completed";
+    
+    let statusClass = status === "Completed" ? "color:#10B981;" : "color:#F59E0B;";
+    let method = w.method || "PayPal";
+    
+    tr.innerHTML = `
+      <td>${w.date ? w.date.split("T")[0] : new Date().toISOString().split("T")[0]}</td>
+      <td style="color:#c48df5; font-weight:700">$${amount.toLocaleString()}</td>
+      <td><span class="package-badge" style="background:rgba(164, 94, 255, 0.1)">${method}</span></td>
+      <td style="text-align: center;"><span style="${statusClass}" class="status-badge">${status}</span></td>
+    `;
+    wBody.appendChild(tr);
+  });
+}
+  function initializeTableToggles() {
+  const tables = [
+    { container: document.getElementById("txTableContainer"), tableBody: els.tableBody, toggleBtn: document.getElementById("toggleTxTableBtn"), fade: document.getElementById("txTableFade"), btnText: document.getElementById("txBtnText"), btnIcon: document.getElementById("txBtnIcon"), title: document.getElementById("ledgerTitle") },
+    { container: document.getElementById("withdrawTableContainer"), tableBody: els.withdrawalTableBody, toggleBtn: document.getElementById("toggleWithdrawTableBtn"), fade: document.getElementById("withdrawTableFade"), btnText: document.getElementById("withdrawBtnText"), btnIcon: document.getElementById("withdrawBtnIcon"), title: document.getElementById("withdrawTitle") }
+  ];
+
+  tables.forEach(table => {
+    if (!table.container || !table.tableBody || !table.toggleBtn || !table.fade) return;
+
+    const rows = table.tableBody.children.length;
+    if (rows <= 4) {
+      table.toggleBtn.style.display = "none";
+      table.fade.style.display = "none";
+      table.container.style.maxHeight = "none";
+      table.container.style.overflowY = "visible";
       return;
     }
-    withdrawals.forEach((w) => {
-      const tr = document.createElement("tr");
-      const statusClass = w.status === "Completed" || w.status === "Paid" ? "color:#10B981;" : "color:#F59E0B;";
-      const displayStatus = w.status === "Paid" ? "Completed" : (w.status || "Pending");
-      tr.innerHTML = `
-        <td>${w.date ? w.date.split("T")[0] : "N/A"}</td>
-        <td style="color:#c48df5; font-weight:700">$${parseFloat(w.amount || 0).toLocaleString()}</td>
-        <td><span class="package-badge" style="background:rgba(164, 94, 255, 0.1)">${w.method || "N/A"}</span></td>
-        <td style="text-align: center;"><span style="${statusClass}" class="status-badge">${displayStatus}</span></td>
-      `;
-      wBody.appendChild(tr);
-    });
-  }
+
+    table.container.style.maxHeight = "220px";
+    table.container.style.overflowY = "hidden";
+    table.fade.style.display = "block";
+    table.toggleBtn.style.display = "block";
+
+    table.toggleBtn.onclick = function() {
+      if (table.container.style.maxHeight === "220px") {
+        table.container.style.maxHeight = table.container.scrollHeight + 50 + "px";
+        table.fade.style.display = "none";
+        if (table.btnText) table.btnText.textContent = "Collapse Table";
+        if (table.btnIcon) table.btnIcon.className = "fas fa-chevron-up";
+      } else {
+        table.container.style.maxHeight = "220px";
+        table.fade.style.display = "block";
+        if (table.btnText) table.btnText.textContent = "Show Full Table";
+        if (table.btnIcon) table.btnIcon.className = "fas fa-chevron-down";
+        if (table.title) {
+          const yOffset = -70;
+          const y = table.title.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }
+    };
+  });
+}
 
   function renderTable(txs) {
     const tableBody = els.tableBody;
     if (!tableBody) return;
     tableBody.innerHTML = "";
-    
-    const tableContainer = document.getElementById("txTableContainer");
-    const toggleBtn = document.getElementById("toggleTxTableBtn");
-    const tableFade = document.getElementById("txTableFade");
-    const btnText = document.getElementById("txBtnText");
-    const btnIcon = document.getElementById("txBtnIcon");
 
     if (txs.length === 0) {
       for (let i = 0; i < 3; i++) {
@@ -753,8 +802,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         tableBody.appendChild(tr);
       }
-      if(toggleBtn) toggleBtn.style.display = "none";
-      if(tableFade) tableFade.style.display = "none";
       return;
     }
 
@@ -784,37 +831,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       tableBody.appendChild(tr);
     });
-
-    if (txs.length > 5 && tableContainer && toggleBtn && tableFade) {
-      tableContainer.style.maxHeight = "380px";
-      tableFade.style.display = "block";
-      toggleBtn.style.display = "block";
-      
-      toggleBtn.onclick = function() {
-        if (tableContainer.style.maxHeight === "380px") {
-          tableContainer.style.maxHeight = tableContainer.scrollHeight + 50 + "px";
-          tableFade.style.display = "none";
-          btnText.textContent = "Collapse Ledger";
-          btnIcon.className = "fas fa-chevron-up";
-        } else {
-          tableContainer.style.maxHeight = "380px";
-          tableFade.style.display = "block";
-          btnText.textContent = "Show Full Ledger";
-          btnIcon.className = "fas fa-chevron-down";
-          
-          const ledgerTitle = document.getElementById("ledgerTitle");
-          if (ledgerTitle) {
-            const yOffset = -50; 
-            const y = ledgerTitle.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
-          }
-        }
-      };
-    } else {
-      if(toggleBtn) toggleBtn.style.display = "none";
-      if(tableFade) tableFade.style.display = "none";
-      if(tableContainer) tableContainer.style.maxHeight = "none";
-    }
   }
 
   function updateCharts(txs) {
@@ -872,7 +888,8 @@ document.addEventListener("DOMContentLoaded", () => {
           maintainAspectRatio: false,
           animation: { animateScale: true, animateRotate: true, duration: 1500, easing: "easeOutQuart" },
           hover: { mode: "nearest", intersect: true },
-          layout: { padding: { top: 25, bottom: 25, left: 10, right: 10 } },
+          cutout: "80%",
+          layout: { padding: { top: 0, bottom: 15, left: 10, right: 10 } },
           plugins: {
             legend: {
               position: "bottom",
@@ -894,7 +911,6 @@ document.addEventListener("DOMContentLoaded", () => {
               },
             },
           },
-          cutout: "75%",
         },
       });
     }
@@ -1144,10 +1160,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const change = ((recentAvg - overallAvg) / overallAvg) * 100;
       velocityScore = Math.floor(change);
       if (velocityScore > 0) {
-        velocityMsg = "Trending Upwards ًںڑ€";
+        velocityMsg = "Trending Upwards 🚀";
         aiVelocity.style.color = "#A45EFF";
       } else {
-        velocityMsg = "Cooling Down â‌„ï¸ڈ";
+        velocityMsg = "Cooling Down ⏸️";
         aiVelocity.style.color = "#a569f5";
       }
     } else {
@@ -1244,13 +1260,14 @@ document.addEventListener("DOMContentLoaded", function () {
   secureBtns.forEach(btn => {
     btn.dataset.originalHtml = btn.innerHTML;
     btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      
       if (!this.classList.contains('confirm-ready')) {
-        e.preventDefault();
         this.classList.add('confirm-ready');
         gsap.to(this, {
           scale: 0.92, opacity: 0.7, duration: 0.1,
           onComplete: () => {
-            this.innerHTML = '<i class="fas fa-check-double"></i> Click Again';
+            this.innerHTML = '<i class="fas fa-check-double"></i> Click Again to Confirm';
             this.style.background = '#5a189a';
             gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
           }
@@ -1266,51 +1283,53 @@ document.addEventListener("DOMContentLoaded", function () {
               gsap.to(this, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(2)" });
             }
           });
-        }, 2000); 
+        }, 3000);
       } else {
         clearTimeout(this.resetTimer);
-        setTimeout(() => {
+        const fileKey = this.getAttribute('data-file');
+        const sessionData = localStorage.getItem(SESSION_KEY);
+        
+        if (!fileKey) {
+          alert('Error: No file specified');
           this.classList.remove('confirm-ready');
           this.innerHTML = this.dataset.originalHtml;
           this.style.background = '';
-        }, 300);
-      }
-    });
-  });
-    // Handle secure downloads
-  document.querySelectorAll('.secure-dl-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      const fileKey = this.getAttribute('data-file');
-      
-      if (!fileKey) {
-        alert('Error: No file specified');
-        return;
-      }
-      
-      const sessionData = localStorage.getItem(SESSION_KEY);
-      if (!sessionData) {
-        window.location.href = '/psp/';
-        return;
-      }
-      
-      try {
-        const parsed = JSON.parse(sessionData);
-        const now = Date.now();
+          return;
+        }
         
-        if (now - parsed.lastActivity > 30 * 60 * 1000) {
-          localStorage.removeItem(SESSION_KEY);
+        if (!sessionData) {
           window.location.href = '/psp/';
           return;
         }
         
-        parsed.lastActivity = now;
-        localStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
-        
-        window.open(`/partner-assets?file=${fileKey}`, '_blank');
-        
-      } catch (e) {
-        window.location.href = '/psp/';
+        try {
+          const parsed = JSON.parse(sessionData);
+          const now = Date.now();
+          
+          if (now - parsed.lastActivity > 30 * 60 * 1000) {
+            localStorage.removeItem(SESSION_KEY);
+            window.location.href = '/psp/';
+            return;
+          }
+          
+          parsed.lastActivity = now;
+          localStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
+          
+          gsap.to(this, {
+            scale: 1.1, duration: 0.2, ease: "power2.out",
+            onComplete: () => {
+              window.open(`/partner-assets?file=${fileKey}`, '_blank');
+              setTimeout(() => {
+                this.classList.remove('confirm-ready');
+                this.innerHTML = this.dataset.originalHtml;
+                this.style.background = '';
+                gsap.to(this, { scale: 1, duration: 0.2 });
+              }, 500);
+            }
+          });
+        } catch (e) {
+          window.location.href = '/psp/';
+        }
       }
     });
   });
