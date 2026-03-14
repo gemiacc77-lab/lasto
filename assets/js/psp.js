@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const API_URL = "https://script.google.com/macros/s/AKfycbwWNsRWtnGwvE66VpDOeishxk6jGRT6oJ6Qup73vgHI7mjbMvPPQoTAFcdeHC9CD-_RJQ/exec";
   const ENROLL_WEBHOOK = "https://script.google.com/macros/s/AKfycbyck7pBRCWeseen7SkV4ntkgjRmZ4IepOOwWXq75pk3WbJQnFrVVTV-6FmBoyullnT4/exec";
   
-  const els = {
+    const els = {
     loginStage: document.getElementById("loginStage"),
     dashStage: document.getElementById("dashStage"),
     pid: document.getElementById("pid"),
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     smartLinkOutput: document.getElementById("smartLinkOutput"),
     resultContainer: document.getElementById("resultContainer"),
     feedTrack: document.getElementById("feedTrack"),
-    withdrawalTableBody: document.getElementById("withdrawalTableBody"),
+    withdrawTableBody: document.getElementById("withdrawTableBody"),
   };
 
   const tips = [
@@ -696,7 +696,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderWithdrawalTable(withdrawals) {
-    const wBody = els.withdrawalTableBody;
+    const wBody = els.withdrawTableBody;
     if (!wBody) return;
     wBody.innerHTML = "";
     if (withdrawals.length === 0) {
@@ -728,7 +728,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function renderTable(txs) {
+    function renderTable(txs) {
     const tableBody = els.tableBody;
     if (!tableBody) return;
     tableBody.innerHTML = "";
@@ -755,6 +755,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if(toggleBtn) toggleBtn.style.display = "none";
       if(tableFade) tableFade.style.display = "none";
+      if(tableContainer) tableContainer.style.maxHeight = "none";
       return;
     }
 
@@ -786,30 +787,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (txs.length > 5 && tableContainer && toggleBtn && tableFade) {
-      tableContainer.style.maxHeight = "380px";
-      tableFade.style.display = "block";
-      toggleBtn.style.display = "block";
-      
-      toggleBtn.onclick = function() {
-        if (tableContainer.style.maxHeight === "380px") {
-          tableContainer.style.maxHeight = tableContainer.scrollHeight + 50 + "px";
-          tableFade.style.display = "none";
-          btnText.textContent = "Collapse Ledger";
-          btnIcon.className = "fas fa-chevron-up";
-        } else {
-          tableContainer.style.maxHeight = "380px";
-          tableFade.style.display = "block";
-          btnText.textContent = "Show Full Ledger";
-          btnIcon.className = "fas fa-chevron-down";
-          
-          const ledgerTitle = document.getElementById("ledgerTitle");
-          if (ledgerTitle) {
-            const yOffset = -50; 
-            const y = ledgerTitle.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
-          }
+      setTimeout(() => {
+        const table = document.getElementById("transactionTable");
+        const thead = table.querySelector('thead');
+        const headerHeight = thead ? thead.offsetHeight : 0;
+        const rows = table.querySelectorAll('tbody tr');
+        let rowsHeight = 0;
+        for (let i = 0; i < Math.min(4, rows.length); i++) {
+          rowsHeight += rows[i].offsetHeight;
         }
-      };
+        const collapsedHeight = headerHeight + rowsHeight + 2;
+        const fullHeight = tableContainer.scrollHeight;
+        
+        tableContainer.style.maxHeight = collapsedHeight + 'px';
+        tableFade.style.display = 'block';
+        toggleBtn.style.display = 'inline-block';
+        
+        toggleBtn.onclick = function() {
+          if (tableContainer.style.maxHeight === collapsedHeight + 'px') {
+            tableContainer.style.maxHeight = fullHeight + 'px';
+            tableFade.style.display = 'none';
+            btnText.textContent = 'Collapse Ledger';
+            btnIcon.className = 'fas fa-chevron-up';
+          } else {
+            tableContainer.style.maxHeight = collapsedHeight + 'px';
+            tableFade.style.display = 'block';
+            btnText.textContent = 'Show Full Ledger';
+            btnIcon.className = 'fas fa-chevron-down';
+          }
+        };
+      }, 50);
     } else {
       if(toggleBtn) toggleBtn.style.display = "none";
       if(tableFade) tableFade.style.display = "none";
