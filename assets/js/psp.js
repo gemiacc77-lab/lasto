@@ -1277,4 +1277,41 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+    // Handle secure downloads
+  document.querySelectorAll('.secure-dl-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const fileKey = this.getAttribute('data-file');
+      
+      if (!fileKey) {
+        alert('Error: No file specified');
+        return;
+      }
+      
+      const sessionData = localStorage.getItem(SESSION_KEY);
+      if (!sessionData) {
+        window.location.href = '/psp/';
+        return;
+      }
+      
+      try {
+        const parsed = JSON.parse(sessionData);
+        const now = Date.now();
+        
+        if (now - parsed.lastActivity > 30 * 60 * 1000) {
+          localStorage.removeItem(SESSION_KEY);
+          window.location.href = '/psp/';
+          return;
+        }
+        
+        parsed.lastActivity = now;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
+        
+        window.open(`/partner-assets?file=${fileKey}`, '_blank');
+        
+      } catch (e) {
+        window.location.href = '/psp/';
+      }
+    });
+  });
 });
