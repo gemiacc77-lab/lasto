@@ -18,7 +18,6 @@
       name="keywords"
       content="affiliate program, high commission, digital marketing partner, elite affiliate, OPTILINE PSP, performance tracking, sales dashboard, revenue analytics"
     />
-
     <meta name="author" content="OPTILINE" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://optiline.online/psp/" />
@@ -822,7 +821,7 @@
           <div class="data-panel anim-dash">
             <div class="panel-header">
               <div class="panel-header-top">
-                <h4 class="panel-title glow-text left-align">
+                <h4 class="panel-title glow-text left-align" id="ledgerTitle">
                   <i class="fas fa-list-ul"></i> Real-Time Transaction Ledger
                 </h4>
                 <div class="export-buttons">
@@ -897,47 +896,61 @@
               </p>
             </div>
             <div class="table-responsive-wrapper">
-              <table class="psp-table" id="transactionTable">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Package</th>
-                    <th>Ref ID</th>
-                    <th>Commission</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="tableBody">
-                  <tr>
-                    <td colspan="5" class="empty-state" id="emptyState">
-                      No transactions recorded yet. Start sharing your link!
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div id="txTableContainer">
+                <table class="psp-table" id="transactionTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Package</th>
+                      <th>Ref ID</th>
+                      <th>Commission</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody">
+                    <tr>
+                      <td colspan="5" class="empty-state" id="emptyState">
+                        No transactions recorded yet. Start sharing your link!
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="table-fade" id="txTableFade"></div>
+              <button class="table-toggle-btn" id="toggleTxTableBtn">
+                <i class="fas fa-chevron-down" id="txBtnIcon"></i>
+                <span id="txBtnText">Show Full Table</span>
+              </button>
             </div>
 
-            <div class="panel-header" style="margin-top: 3rem;">
+            <div class="panel-header" style="margin-top: 3rem;" id="withdrawTitle">
               <h4 class="panel-title glow-text left-align">
                 <i class="fas fa-money-check-alt"></i> Withdrawal History
               </h4>
             </div>
             <div class="table-responsive-wrapper">
-              <table class="psp-table" id="withdrawTable">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Method</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="withdrawTableBody">
-                  <tr>
-                    <td colspan="4" class="empty-state">No withdrawals requested yet.</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div id="withdrawTableContainer">
+                <table class="psp-table" id="withdrawTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Amount</th>
+                      <th>Method</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="withdrawalTableBody">
+                    <tr>
+                      <td colspan="4" class="empty-state">No withdrawals requested yet.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="table-fade" id="withdrawTableFade"></div>
+              <button class="table-toggle-btn" id="toggleWithdrawTableBtn">
+                <i class="fas fa-chevron-down" id="withdrawBtnIcon"></i>
+                <span id="withdrawBtnText">Show Full Table</span>
+              </button>
             </div>
           </div>
           <div class="builder-section anim-dash">
@@ -1082,7 +1095,7 @@
             <div class="panel-header">
               <div class="header-with-ai">
                 <h4 class="panel-title glow-text left-align">
-                  <i class="fas fa-brain"></i> OPTILINE AIâ„¢ Intelligence
+                  <i class="fas fa-brain"></i> OPTILINE AI™ Intelligence
                 </h4>
                 <div class="ai-status">
                   <span class="pulse-ring"></span>
@@ -1226,7 +1239,7 @@
         </div>
       </div>
       <div class="copyright">
-        <p>آ© 2026 OPTILINE. All Rights Reserved.</p>
+        <p>© 2026 OPTILINE. All Rights Reserved.</p>
       </div>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
