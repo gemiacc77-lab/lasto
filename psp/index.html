@@ -819,108 +819,64 @@
               </div>
             </div>
           </section>
-          <div class="data-panel anim-dash">
+                     <div class="data-panel anim-dash">
             <div class="panel-header">
               <div class="panel-header-top">
                 <h4 class="panel-title glow-text left-align">
                   <i class="fas fa-list-ul"></i> Real-Time Transaction Ledger
                 </h4>
                 <div class="export-buttons">
-                  <select
-                    id="txFilter"
-                    class="export-btn"
-                    style="
-                      background: #2a1051;
-                      color: #a45eff;
-                      border: 1px solid #381857;
-                      cursor: pointer;
-                      padding-right: 10px;
-                    "
-                  >
-                    <option
-                      value="all"
-                      style="background: #2a1051; color: #a45eff"
-                    >
-                      All History
-                    </option>
-                    <option
-                      value="7"
-                      style="background: #2a1051; color: #a45eff"
-                    >
-                      Last 7 Days
-                    </option>
-                    <option
-                      value="15"
-                      style="background: #2a1051; color: #a45eff"
-                    >
-                      Last 15 Days
-                    </option>
-                    <option
-                      value="30"
-                      style="background: #2a1051; color: #a45eff"
-                    >
-                      Last 30 Days
-                    </option>
-                    <option
-                      value="90"
-                      style="background: #2a1051; color: #a45eff"
-                    >
-                      Last 3 Months
-                    </option>
-                    <option
-                      value="180"
-                      style="background: #2a1051; color: #a45eff"
-                    >
-                      Last 6 Months
-                    </option>
-                    <option
-                      value="365"
-                      style="background: #2a1051; color: #a45eff"
-                    >
-                      Last Year
-                    </option>
+                  <select id="txFilter" class="export-btn" style="background: #2a1051; color: #a45eff; border: 1px solid #381857; cursor: pointer; padding-right: 10px;">
+                    <option value="all" style="background: #2a1051; color: #a45eff;">All History</option>
+                    <option value="7" style="background: #2a1051; color: #a45eff;">Last 7 Days</option>
+                    <option value="15" style="background: #2a1051; color: #a45eff;">Last 15 Days</option>
+                    <option value="30" style="background: #2a1051; color: #a45eff;">Last 30 Days</option>
+                    <option value="90" style="background: #2a1051; color: #a45eff;">Last 3 Months</option>
+                    <option value="180" style="background: #2a1051; color: #a45eff;">Last 6 Months</option>
+                    <option value="365" style="background: #2a1051; color: #a45eff;">Last Year</option>
                   </select>
-                  <button id="exportCSV" class="export-btn">
-                    <i class="fas fa-file-csv"></i> CSV
-                  </button>
-                  <button id="exportExcel" class="export-btn">
-                    <i class="fas fa-file-excel"></i> Excel
-                  </button>
-                  <button id="exportPDF" class="export-btn">
-                    <i class="fas fa-file-pdf"></i> PDF
-                  </button>
+                  <button id="exportCSV" class="export-btn"><i class="fas fa-file-csv"></i> CSV</button>
+                  <button id="exportExcel" class="export-btn"><i class="fas fa-file-excel"></i> Excel</button>
+                  <button id="exportPDF" class="export-btn"><i class="fas fa-file-pdf"></i> PDF</button>
                 </div>
               </div>
-              <p class="psp-sub-phrase">
-                Detailed record of all qualified conversions and commission
-                payouts.
-              </p>
-            </div>
-            <div class="table-responsive-wrapper">
-              <table class="psp-table" id="transactionTable">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Package</th>
-                    <th>Ref ID</th>
-                    <th>Commission</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="tableBody">
-                  <tr>
-                    <td colspan="5" class="empty-state" id="emptyState">
-                      No transactions recorded yet. Start sharing your link!
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <p class="psp-sub-phrase">Detailed record of all qualified conversions and commission payouts.</p>
             </div>
 
-            <div class="panel-header" style="margin-top: 3rem;">
-              <h4 class="panel-title glow-text left-align">
-                <i class="fas fa-money-check-alt"></i> Withdrawal History
-              </h4>
+            <div id="txTableContainer" class="table-collapsible-container" style="position: relative; overflow: hidden; transition: max-height 0.5s ease-in-out;">
+              <div class="table-responsive-wrapper">
+                <table class="psp-table" id="transactionTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Package</th>
+                      <th>Ref ID</th>
+                      <th>Commission</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody">
+                    <tr>
+                      <td colspan="5" class="empty-state" id="emptyState">No transactions recorded yet. Start sharing your link!</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div id="txTableFade" class="table-fade-overlay" style="display: none;"></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 1rem;">
+              <button id="toggleTxTableBtn" class="unified-button outline-btn" style="display: none;">
+                <span id="txBtnText">Show Full Ledger</span>
+                <i id="txBtnIcon" class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="data-panel anim-dash" style="margin-top: 3rem;">
+            <div class="panel-header">
+              <h4 class="panel-title glow-text left-align"><i class="fas fa-money-check-alt"></i> Withdrawal History</h4>
+              <p class="psp-sub-phrase">Record of all your withdrawal requests and their status.</p>
             </div>
             <div class="table-responsive-wrapper">
               <table class="psp-table" id="withdrawTable">
@@ -939,6 +895,7 @@
                 </tbody>
               </table>
             </div>
+          </div>
           </div>
           <div class="builder-section anim-dash">
             <div class="panel-header">
