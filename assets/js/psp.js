@@ -1147,10 +1147,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const change = ((recentAvg - overallAvg) / overallAvg) * 100;
       velocityScore = Math.floor(change);
       if (velocityScore > 0) {
-        velocityMsg = "Trending Upwards ًںڑ€";
+        velocityMsg = "Trending Upwards 🚀";
         aiVelocity.style.color = "#A45EFF";
       } else {
-        velocityMsg = "Cooling Down â‌„ï¸ڈ";
+        velocityMsg = "Cooling Down ❄️";
         aiVelocity.style.color = "#a569f5";
       }
     } else {
