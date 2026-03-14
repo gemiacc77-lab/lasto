@@ -31,7 +31,6 @@ function updateActivity() {
       const parsed = JSON.parse(sessionData);
       parsed.lastActivity = Date.now();
       localStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
-      document.cookie = "isLoggedIn=true; path=/; max-age=1800; Secure; SameSite=Strict";
     }
     activityTimeout = null;
   }, 5000);
@@ -207,12 +206,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (els.logoutBtn) {
-  els.logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem(SESSION_KEY);
-    document.cookie = "isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    window.location.reload();
-  });
-}
+    els.logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem(SESSION_KEY);
+      window.location.reload();
+    });
+  }
 
   [els.pid, els.ppass].forEach((input) => {
     if (input) {
@@ -572,7 +570,6 @@ document.addEventListener("DOMContentLoaded", () => {
             data: data.data,
             lastActivity: Date.now()
           }));
-          document.cookie = "isLoggedIn=true; path=/; max-age=1800; Secure; SameSite=Strict";
           loadDashboard(data.data);
         } else {
           showError(
@@ -1147,10 +1144,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const change = ((recentAvg - overallAvg) / overallAvg) * 100;
       velocityScore = Math.floor(change);
       if (velocityScore > 0) {
-        velocityMsg = "Trending Upwards 🚀";
+        velocityMsg = "Trending Upwards ًںڑ€";
         aiVelocity.style.color = "#A45EFF";
       } else {
-        velocityMsg = "Cooling Down ❄️";
+        velocityMsg = "Cooling Down â‌„ï¸ڈ";
         aiVelocity.style.color = "#a569f5";
       }
     } else {
