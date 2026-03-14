@@ -2970,3 +2970,40 @@ html.is-logged-in #dashStage {
     padding-right: 0.75rem;
   }
 }
+.toggle-table-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid var(--card-border-color);
+  color: var(--accent-light);
+  transition: all 0.3s ease;
+}
+
+.toggle-table-btn i {
+  margin: 0;
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.toggle-table-btn:hover {
+  background: rgba(138, 43, 226, 0.2);
+  border-color: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+.toggle-table-btn:hover i {
+  transform: scale(1.1);
+}
+
+.table-collapsible-container.collapsed .table-fade-overlay {
+  display: block !important;
+}
+
+.table-collapsible-container.expanded .table-fade-overlay {
+  display: none !important;
+}
